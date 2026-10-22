@@ -84,8 +84,16 @@ CLASSIFY_JS = ("const err = $json.error;\n"
                "let status = 'failed';\n"
                "if ((!err && $json.buyer_lead_id) || code === 409) status = 'delivered';\n"
                "else if (code >= 400 && code < 500 && code !== 408 && code !== 429) status = 'rejected';\n"
-               "const error = status === 'delivered' ? null\n"
-               "  : (err ? String(err.message || 'unknown error').slice(0, 200) : 'no buyer_lead_id in the answer');\n")
+               "// Turn '503 - \"{\\\"detail\\\":\\\"down\\\"}\"' into '503 down' for the alert.\n"
+               "let error = err ? String(err.message || 'unknown error') : 'no buyer_lead_id in the answer';\n"
+               "const parts = error.match(/^(\\d{3}) - (.*)$/s);\n"
+               "if (parts) {\n"
+               "  let body = parts[2];\n"
+               "  try { body = JSON.parse(body); } catch (e) {}\n"
+               "  try { body = JSON.parse(body).detail || body; } catch (e) {}\n"
+               "  error = `${parts[1]} ${body}`;\n"
+               "}\n"
+               "error = status === 'delivered' ? null : error.slice(0, 200);\n")
 
 # ---------------------------------------------------------------- STL-01
 f = Flow("STL-01 Qualify and Deliver")

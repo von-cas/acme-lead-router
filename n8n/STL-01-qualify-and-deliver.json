@@ -8,7 +8,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "7f45ec90-bedd-45c2-a6fc-2a5670b65f55",
+      "id": "f936a117-4a7f-4c70-aa46-274ee688fd0f",
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
@@ -16,7 +16,7 @@
         0,
         300
       ],
-      "webhookId": "c0067522-8ff8-4800-8020-d6db525d12fa"
+      "webhookId": "d93bf358-092a-46d7-bbe2-2fedc84d872d"
     },
     {
       "parameters": {
@@ -29,7 +29,7 @@
           },
           "conditions": [
             {
-              "id": "a614dda7-52b6-4399-b432-600efc0ea830",
+              "id": "f40a2004-6a71-437f-8073-cf9d1bb6f3fa",
               "leftValue": "={{ !!$vars.WEBHOOK_KEY && $json.query.key === $vars.WEBHOOK_KEY }}",
               "rightValue": "",
               "operator": {
@@ -43,7 +43,7 @@
         },
         "options": {}
       },
-      "id": "385d4133-bcfe-4f3a-ad90-e72886937f4b",
+      "id": "61bbca7a-8051-4a1f-83ea-2d9a3ac67f86",
       "name": "Key OK?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -60,7 +60,7 @@
           "responseCode": 401
         }
       },
-      "id": "dbbd5b73-9b33-4e86-afc4-8973f9be0a43",
+      "id": "fe6795da-32c3-40c5-930a-30d92f32309f",
       "name": "Respond 401",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
@@ -77,7 +77,7 @@
           "responseCode": 202
         }
       },
-      "id": "5a047009-24a8-4e21-8b1c-5dfd60b59615",
+      "id": "95d65331-d38b-43d6-81ed-2ab9e3a2f922",
       "name": "Respond 202",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
@@ -91,73 +91,73 @@
         "assignments": {
           "assignments": [
             {
-              "id": "547a0ef9-9dff-40d0-b904-07756fdd42f3",
+              "id": "5c219250-495b-4bd0-82e3-14cbba01d839",
               "name": "contact_id",
               "value": "={{ $json.body.customData?.contact_id || $json.body.contact_id || '' }}",
               "type": "string"
             },
             {
-              "id": "934a3f56-d755-41d2-b753-ffa18db4f049",
+              "id": "60bcba4e-5b39-4462-b1ef-2b56255beff0",
               "name": "first_name",
               "value": "={{ $json.body.first_name || '' }}",
               "type": "string"
             },
             {
-              "id": "1153538e-0d89-4ada-82f9-51e0fc47ed02",
+              "id": "120893f3-a7d1-4512-b6f4-54b3724a2b00",
               "name": "last_name",
               "value": "={{ $json.body.last_name || '' }}",
               "type": "string"
             },
             {
-              "id": "fe7c82ef-4293-47ba-aba9-8a1bfbfa278a",
+              "id": "fff546fd-644b-447e-9230-96fe8aab3fe5",
               "name": "email",
               "value": "={{ $json.body.email || '' }}",
               "type": "string"
             },
             {
-              "id": "f9cc49e0-887b-4151-b7e9-576966e1383d",
+              "id": "ff7da8c7-ca49-438a-a38d-7e8a460bd7e8",
               "name": "phone",
               "value": "={{ $json.body.phone || '' }}",
               "type": "string"
             },
             {
-              "id": "f95932e0-0875-47b0-8c80-1a567a68dfc9",
+              "id": "85d4df45-84a1-43d7-a7d8-72068e473d63",
               "name": "city",
               "value": "={{ $json.body.city || '' }}",
               "type": "string"
             },
             {
-              "id": "0578e625-d393-4c51-851d-9321584a772c",
+              "id": "e1b95f68-0562-499d-96eb-8296292c1edf",
               "name": "postal_code",
               "value": "={{ $json.body.customData?.postal_code || $json.body.postal_code || '' }}",
               "type": "string"
             },
             {
-              "id": "63c8d85e-1458-47a4-8eba-f3ebd56c75a2",
+              "id": "54d71df1-b5dc-474c-9c44-250f9a5adede",
               "name": "monthly_bill",
               "value": "={{ $json.body.customData?.monthly_bill || '' }}",
               "type": "string"
             },
             {
-              "id": "dabd0168-64c1-4edc-9bde-975425a6c20c",
+              "id": "eb7c9faa-b875-4376-a635-e9cffdfa07a5",
               "name": "homeowner",
               "value": "={{ $json.body.customData?.homeowner || '' }}",
               "type": "string"
             },
             {
-              "id": "a0b1aad9-1c62-4764-b043-462cc80fab2d",
+              "id": "21c620f1-b076-45af-ae52-2a9cf3c4384a",
               "name": "roof_shade",
               "value": "={{ $json.body.customData?.roof_shade || '' }}",
               "type": "string"
             },
             {
-              "id": "c58a2422-7b06-4625-b7fa-9483f0545f92",
+              "id": "c3b5c924-d12d-4c02-8e5d-99447ff9395d",
               "name": "timeline",
               "value": "={{ $json.body.customData?.timeline || '' }}",
               "type": "string"
             },
             {
-              "id": "0cff09e4-0a92-4202-81e2-eb3158c7f750",
+              "id": "6ef82c28-7be2-4834-b650-33c882f91f2b",
               "name": "consent",
               "value": "={{ $json.body.customData?.consent || '' }}",
               "type": "string"
@@ -166,7 +166,7 @@
         },
         "options": {}
       },
-      "id": "b5769ee8-fa55-4cc1-8079-97419b4e7368",
+      "id": "bc69a900-ac45-4c19-b3a1-9eb4427c4712",
       "name": "Lead in",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -188,7 +188,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json) }}"
       },
-      "id": "ed320fbc-79cf-48c7-b01b-2e9cefaf3907",
+      "id": "fb70c131-0726-486b-b6ce-fcc959727791",
       "name": "Qualify",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -212,7 +212,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ text: 'Scoring service failed for ' + $('Lead in').item.json.first_name + ': ' + ($json.error?.message || 'unknown') + '. The lead is tagged ai-review. Execution ' + $execution.id }) }}"
       },
-      "id": "eb343b19-c08c-46af-b58d-e533f248e849",
+      "id": "4e89d101-fe25-4129-ba04-3e359f831014",
       "name": "Alert: scoring down",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -226,7 +226,7 @@
         "mode": "runOnceForEachItem",
         "jsCode": "// Pass the service's answer through, or build a review-only result when scoring failed.\nif ($json.qualification && $json.lead) return { json: $json };\nconst lead = $('Lead in').item.json;\nreturn { json: {\n  lead: { ...lead, lead_key: null },\n  qualification: { score: 0, tier: 'review', reasons: ['Scoring service unavailable'],\n    summary: 'Scoring service unavailable; review this lead by hand.', source: 'none' },\n} };\n"
       },
-      "id": "e3b65ca0-ab55-49ea-a75d-100c2fc63307",
+      "id": "48e4cd04-6569-4af0-a479-1f8a55313a69",
       "name": "Scored",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -257,7 +257,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ customFields: [\n  { id: $vars.GHL_FIELD_AI_SCORE, field_value: $json.qualification.score },\n  { id: $vars.GHL_FIELD_AI_TIER, field_value: $json.qualification.tier },\n  { id: $vars.GHL_FIELD_AI_SUMMARY, field_value: $json.qualification.summary }\n] }) }}"
       },
-      "id": "fb63de5c-8910-45c3-8aeb-e4bc54b2249b",
+      "id": "b2c279ac-2470-4ff8-a3c3-81e5be09e618",
       "name": "Update contact",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -291,7 +291,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: ['ai-' + $('Scored').item.json.qualification.tier] }) }}"
       },
-      "id": "1efa6fbd-818e-4d79-9202-c08e35b3b6bf",
+      "id": "cea9911f-b5f1-4729-8e59-c91bac46fcd3",
       "name": "Add tier tag",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -325,7 +325,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ body: 'AI score ' + $('Scored').item.json.qualification.score + '/100 (' + $('Scored').item.json.qualification.tier + ', ' + ({ rules: 'rules', none: 'not scored' }[$('Scored').item.json.qualification.source] || 'AI model') + '): ' + $('Scored').item.json.qualification.summary + ' Reasons: ' + $('Scored').item.json.qualification.reasons.join('; ') }) }}"
       },
-      "id": "2fb900f5-d027-4d1c-adeb-39c4e387ec29",
+      "id": "4db2e146-e766-455a-9dfa-52ccf2615872",
       "name": "Add note",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -348,7 +348,7 @@
           },
           "conditions": [
             {
-              "id": "6434eb39-e46f-48ad-995d-2408e44d91ef",
+              "id": "9db9eff3-eb8e-445d-916b-5daac2014b68",
               "leftValue": "={{ $('Scored').item.json.lead.consent === true && $('Scored').item.json.lead.homeowner === true && ['hot', 'warm'].includes($('Scored').item.json.qualification.tier) }}",
               "rightValue": "",
               "operator": {
@@ -362,7 +362,7 @@
         },
         "options": {}
       },
-      "id": "82154217-d878-441a-aa29-7ddd0b797969",
+      "id": "d71c4606-fe59-4549-b84b-6be5a9af80c1",
       "name": "Sellable?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -384,7 +384,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ lead: $('Scored').item.json.lead, qualification: $('Scored').item.json.qualification }) }}"
       },
-      "id": "151b33ef-84a7-4388-977d-781b255d0e6e",
+      "id": "8462c594-0bf1-4b36-8f0e-b6ed4b06b0d5",
       "name": "Map",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -401,7 +401,7 @@
         "mode": "runOnceForEachItem",
         "jsCode": "// The delivery ledger lives in this workflow's static data, so the replay and the morning check\n// (the other two triggers in this workflow) can read it. n8n saves static data only for\n// production runs of the active workflow, not for manual test runs, and only when a run ends,\n// so two runs at the same moment can both pass this check. A production build keeps the ledger\n// in a database row claimed atomically; the buyer's Idempotency-Key is the backstop.\nconst ledger = $getWorkflowStaticData('global');\nledger.deliveries = ledger.deliveries || {};\nconst { lead } = $('Scored').item.json;\nconst buyer = 'installer-a';\nconst key = `${buyer}:${lead.lead_key}`;\nconst prior = ledger.deliveries[key];\nconst thirtyDays = 30 * 24 * 3600 * 1000;\n// A lead already in flight (sending, waiting for the replay, held at the cap) or waiting for a person\n// (rejected, dead) is handled; a delivered lead is a duplicate for 30 days.\nif (prior && (['sending', 'failed', 'held', 'rejected', 'dead'].includes(prior.status)\n    || (prior.status === 'delivered' && Date.now() - prior.at < thirtyDays))) {\n  return { json: { action: 'duplicate', prior: prior.status } };\n}\nconst capVar = Number($vars.INSTALLER_A_DAILY_CAP);\nconst cap = Number.isFinite(capVar) && capVar > 0 ? capVar : 25;\nconst deliveredToday = Object.values(ledger.deliveries)\n  .filter(d => d.buyer === buyer && d.status === 'delivered' && d.day === lead.day).length;\n// One idempotency key per submission, kept for every retry and replay of it.\nconst entry = { buyer, day: lead.day, at: Date.now(), attempts: 0, contact_id: lead.contact_id,\n  name: lead.first_name, payload: $('Map').item.json, idem: `${lead.lead_key}-${$execution.id}` };\nif (deliveredToday >= cap) {\n  ledger.deliveries[key] = { ...entry, status: 'held' };\n  return { json: { action: 'cap', deliveredToday, cap } };\n}\nledger.deliveries[key] = { ...entry, status: 'sending' };\nreturn { json: { action: 'deliver', deliveredToday, cap, idem: entry.idem } };\n"
       },
-      "id": "07840299-5f54-4a55-8f5d-557f8b9b8f86",
+      "id": "7a4ab1a3-434a-48b9-8aae-cfe8b81002f6",
       "name": "Check ledger",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -421,7 +421,7 @@
           },
           "conditions": [
             {
-              "id": "69c06851-830c-4acd-8e9a-ec1b51bec671",
+              "id": "18f3ad57-bd79-4cad-8826-f1fb574b3087",
               "leftValue": "={{ $json.action === 'deliver' }}",
               "rightValue": "",
               "operator": {
@@ -435,7 +435,7 @@
         },
         "options": {}
       },
-      "id": "a7e06612-0fbb-4bfc-9a8f-706b7ab25f54",
+      "id": "a3571042-c052-4e49-a207-be07d0ceb473",
       "name": "Deliver?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -466,7 +466,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: [$json.action === 'duplicate' ? 'duplicate-skipped' : 'cap-reached'] }) }}"
       },
-      "id": "fad44eb5-7b7b-4b65-a627-ca444c342666",
+      "id": "67e10c6c-5892-4005-8ec3-6c7450f5ba32",
       "name": "Tag skipped",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -500,7 +500,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($('Map').item.json) }}"
       },
-      "id": "9f8a6519-b633-47c0-8395-6d3e8dd623f6",
+      "id": "bfb60866-7cd9-4a7e-802d-feed7b6eecef",
       "name": "Deliver",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -516,9 +516,9 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Both Deliver outputs land here: classify the answer and write it to the ledger.\nconst err = $json.error;\nconst code = err ? Number(err.status || (String(err.message || '').match(/^(\\d{3})/) || [])[1] || 0) : 200;\nlet status = 'failed';\nif ((!err && $json.buyer_lead_id) || code === 409) status = 'delivered';\nelse if (code >= 400 && code < 500 && code !== 408 && code !== 429) status = 'rejected';\nconst error = status === 'delivered' ? null\n  : (err ? String(err.message || 'unknown error').slice(0, 200) : 'no buyer_lead_id in the answer');\nconst ledger = $getWorkflowStaticData('global');\nconst { lead } = $('Scored').item.json;\nconst d = ledger.deliveries[`installer-a:${lead.lead_key}`];\nObject.assign(d, { status, attempts: d.attempts + 1, at: Date.now(), last_error: error,\n  buyer_lead_id: $json.buyer_lead_id || d.buyer_lead_id });\nreturn { json: { status, name: lead.first_name, contact_id: lead.contact_id, error } };\n"
+        "jsCode": "// Both Deliver outputs land here: classify the answer and write it to the ledger.\nconst err = $json.error;\nconst code = err ? Number(err.status || (String(err.message || '').match(/^(\\d{3})/) || [])[1] || 0) : 200;\nlet status = 'failed';\nif ((!err && $json.buyer_lead_id) || code === 409) status = 'delivered';\nelse if (code >= 400 && code < 500 && code !== 408 && code !== 429) status = 'rejected';\n// Turn '503 - \"{\\\"detail\\\":\\\"down\\\"}\"' into '503 down' for the alert.\nlet error = err ? String(err.message || 'unknown error') : 'no buyer_lead_id in the answer';\nconst parts = error.match(/^(\\d{3}) - (.*)$/s);\nif (parts) {\n  let body = parts[2];\n  try { body = JSON.parse(body); } catch (e) {}\n  try { body = JSON.parse(body).detail || body; } catch (e) {}\n  error = `${parts[1]} ${body}`;\n}\nerror = status === 'delivered' ? null : error.slice(0, 200);\nconst ledger = $getWorkflowStaticData('global');\nconst { lead } = $('Scored').item.json;\nconst d = ledger.deliveries[`installer-a:${lead.lead_key}`];\nObject.assign(d, { status, attempts: d.attempts + 1, at: Date.now(), last_error: error,\n  buyer_lead_id: $json.buyer_lead_id || d.buyer_lead_id });\nreturn { json: { status, name: lead.first_name, contact_id: lead.contact_id, error } };\n"
       },
-      "id": "031f851b-4624-4247-abc1-1b4226d6d7ad",
+      "id": "d668f44c-0a75-4f0b-8ffd-56a3ad65b1a8",
       "name": "Record outcome",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -538,7 +538,7 @@
           },
           "conditions": [
             {
-              "id": "3c97c1e4-3d9e-4fc8-b61c-17aae8a32bfc",
+              "id": "64a02496-6cde-4330-9569-f1518dac4353",
               "leftValue": "={{ $json.status === 'delivered' }}",
               "rightValue": "",
               "operator": {
@@ -552,7 +552,7 @@
         },
         "options": {}
       },
-      "id": "0067f492-a593-49d6-980e-1c1a5c5b2048",
+      "id": "a1b7e32f-b6dc-499b-b3f5-ba5956261ccd",
       "name": "Delivered?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -583,7 +583,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: ['delivered-installer-a'] }) }}"
       },
-      "id": "9f544e18-d73d-4b0b-b651-f8df9519efc1",
+      "id": "7106b5f8-ced0-4262-a1ba-b9ef6e96eebf",
       "name": "Tag delivered",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -606,7 +606,7 @@
           },
           "conditions": [
             {
-              "id": "88e472e9-f9c3-464b-bf58-9c5523ce3f1b",
+              "id": "5b02d542-fae7-47de-b0cb-d19a217c4cbe",
               "leftValue": "={{ $json.status === 'rejected' }}",
               "rightValue": "",
               "operator": {
@@ -620,7 +620,7 @@
         },
         "options": {}
       },
-      "id": "ecf2f60b-1873-4d2c-ab93-8632b830cbbb",
+      "id": "1966a2e5-8cb3-4a47-ad74-473fef26898f",
       "name": "Rejected?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -651,7 +651,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: ['delivery-rejected'] }) }}"
       },
-      "id": "4dac51f7-fd16-41c8-8003-36fd3f42a89b",
+      "id": "29e995df-9fee-471d-b803-b36e2c790a44",
       "name": "Tag rejected",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -674,7 +674,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ text: 'Rejected by Installer A: ' + $('Record outcome').item.json.name + ' (' + $('Record outcome').item.json.error + '). Not retried, because the same request would be rejected again. Tag delivery-rejected; needs a person. Execution ' + $execution.id }) }}"
       },
-      "id": "07e9f089-75cf-40cb-ab22-fb12551505e5",
+      "id": "a581ba37-1a71-487d-af7d-018bb0120aa3",
       "name": "Alert: delivery rejected",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -705,7 +705,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: ['delivery-failed'] }) }}"
       },
-      "id": "1c200590-8596-4b35-bafa-4b6412cd3863",
+      "id": "19ad9bfe-432e-46fe-b802-07a0d50702bc",
       "name": "Tag failed",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -728,7 +728,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ text: 'Delivery failed: ' + $('Record outcome').item.json.name + ' to Installer A after 3 tries (' + $('Record outcome').item.json.error + '). The lead is safe in GoHighLevel with tag delivery-failed. Replay runs every 15 minutes. Execution ' + $execution.id }) }}"
       },
-      "id": "73b2b9ce-ad9b-40da-848f-dc33fa6b7af9",
+      "id": "d4ed024b-ee34-405d-a3dd-8da6fddfbe56",
       "name": "Alert: delivery failed",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -748,7 +748,7 @@
           ]
         }
       },
-      "id": "20a39b36-567f-40c8-bb2e-1648aabea665",
+      "id": "225a8e32-cebb-43bb-b4c6-2c5750a4f12c",
       "name": "Every 15 minutes",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
@@ -761,7 +761,7 @@
       "parameters": {
         "jsCode": "const ledger = $getWorkflowStaticData('global');\nledger.deliveries = ledger.deliveries || {};\nconst capVar = Number($vars.INSTALLER_A_DAILY_CAP);\nconst cap = Number.isFinite(capVar) && capVar > 0 ? capVar : 25;\nconst today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });\nconst all = Object.entries(ledger.deliveries);\n// Leads held at yesterday's cap go out first thing, oldest first, inside today's cap.\nlet room = cap - all.filter(([, d]) => d.status === 'delivered' && d.day === today).length;\nfor (const [, d] of all.filter(([, d]) => d.status === 'held' && d.day < today && d.payload)\n    .sort((a, b) => a[1].at - b[1].at)) {\n  if (room <= 0) break;\n  Object.assign(d, { status: 'failed', day: today, released_from_cap: true });\n  room -= 1;\n}\nreturn all.filter(([, d]) => d.status === 'failed' && d.attempts < 5 && d.payload)\n  .map(([key, d]) => ({ json: { key, ...d } }));\n"
       },
-      "id": "459c434e-c6c1-4d80-91d0-21d97a12e814",
+      "id": "d66590c3-e778-4cb3-b334-16554fa9d560",
       "name": "Pick deliveries to retry",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -792,7 +792,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json.payload) }}"
       },
-      "id": "729e1eff-d402-4cef-9544-8867102a2213",
+      "id": "4fca4e28-f1e4-4fc7-83ca-15c98c02f7d5",
       "name": "Deliver again",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -808,9 +808,9 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const err = $json.error;\nconst code = err ? Number(err.status || (String(err.message || '').match(/^(\\d{3})/) || [])[1] || 0) : 200;\nlet status = 'failed';\nif ((!err && $json.buyer_lead_id) || code === 409) status = 'delivered';\nelse if (code >= 400 && code < 500 && code !== 408 && code !== 429) status = 'rejected';\nconst error = status === 'delivered' ? null\n  : (err ? String(err.message || 'unknown error').slice(0, 200) : 'no buyer_lead_id in the answer');\nconst ledger = $getWorkflowStaticData('global');\nconst d = ledger.deliveries[$('Pick deliveries to retry').item.json.key];\nd.attempts += 1;\nd.last_error = error;\nif (status === 'delivered') Object.assign(d, { status, recovered_at: Date.now(),\n  buyer_lead_id: $json.buyer_lead_id || d.buyer_lead_id });\nelse if (status === 'rejected') d.status = 'rejected';\nelse if (d.attempts >= 5) d.status = 'dead';\nreturn { json: { status: d.status, contact_id: d.contact_id, name: d.name, attempts: d.attempts, error } };\n"
+        "jsCode": "const err = $json.error;\nconst code = err ? Number(err.status || (String(err.message || '').match(/^(\\d{3})/) || [])[1] || 0) : 200;\nlet status = 'failed';\nif ((!err && $json.buyer_lead_id) || code === 409) status = 'delivered';\nelse if (code >= 400 && code < 500 && code !== 408 && code !== 429) status = 'rejected';\n// Turn '503 - \"{\\\"detail\\\":\\\"down\\\"}\"' into '503 down' for the alert.\nlet error = err ? String(err.message || 'unknown error') : 'no buyer_lead_id in the answer';\nconst parts = error.match(/^(\\d{3}) - (.*)$/s);\nif (parts) {\n  let body = parts[2];\n  try { body = JSON.parse(body); } catch (e) {}\n  try { body = JSON.parse(body).detail || body; } catch (e) {}\n  error = `${parts[1]} ${body}`;\n}\nerror = status === 'delivered' ? null : error.slice(0, 200);\nconst ledger = $getWorkflowStaticData('global');\nconst d = ledger.deliveries[$('Pick deliveries to retry').item.json.key];\nd.attempts += 1;\nd.last_error = error;\nif (status === 'delivered') Object.assign(d, { status, recovered_at: Date.now(),\n  buyer_lead_id: $json.buyer_lead_id || d.buyer_lead_id });\nelse if (status === 'rejected') d.status = 'rejected';\nelse if (d.attempts >= 5) d.status = 'dead';\nreturn { json: { status: d.status, contact_id: d.contact_id, name: d.name, attempts: d.attempts, error } };\n"
       },
-      "id": "90955819-a503-4ca8-8287-4f2fcc9c6c4e",
+      "id": "e6e57d08-194e-4559-9704-8f5f3c396f74",
       "name": "Record replay",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -830,7 +830,7 @@
           },
           "conditions": [
             {
-              "id": "d1629756-f47a-4161-9763-916c2a8f5a8f",
+              "id": "cdfe0fa3-ad93-4716-b032-6c4dc57afc20",
               "leftValue": "={{ $json.status === 'delivered' }}",
               "rightValue": "",
               "operator": {
@@ -844,7 +844,7 @@
         },
         "options": {}
       },
-      "id": "512d0013-7cae-4633-ab6e-4cb934924106",
+      "id": "eab8b513-d565-401a-ba53-e52ff218efe2",
       "name": "Recovered?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -875,7 +875,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: ['delivery-failed', 'cap-reached'] }) }}"
       },
-      "id": "91e240c0-f779-4c99-a615-821f3e7ca1b6",
+      "id": "c30e2c07-2a2a-4c2f-b303-1980aedee448",
       "name": "Remove failed tag",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -909,7 +909,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: ['delivered-installer-a'] }) }}"
       },
-      "id": "222ca9e2-7cfb-42c9-837b-6994e325ff58",
+      "id": "1505f69d-3925-4ad2-bcff-b88b3c112ba4",
       "name": "Add delivered tag",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -932,7 +932,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ text: 'Recovered: ' + $('Record replay').item.json.name + ' delivered to Installer A on attempt ' + $('Record replay').item.json.attempts + '.' }) }}"
       },
-      "id": "49e741aa-d224-41a7-973d-e61a5634490f",
+      "id": "7bc47664-94be-4979-8499-52eb07edaf68",
       "name": "Alert: recovered",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -952,7 +952,7 @@
           },
           "conditions": [
             {
-              "id": "db64ae0b-8121-434b-b224-ab85e41a9a97",
+              "id": "fd6b4cd5-e9f5-4d04-bbff-1cc6b25f1435",
               "leftValue": "={{ ['dead', 'rejected'].includes($json.status) }}",
               "rightValue": "",
               "operator": {
@@ -966,7 +966,7 @@
         },
         "options": {}
       },
-      "id": "c886f611-871b-482b-baac-567510bb3df7",
+      "id": "8998c708-b881-49af-ac6c-b1f01b3e64f9",
       "name": "Gave up?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -997,7 +997,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: [$json.status === 'rejected' ? 'delivery-rejected' : 'delivery-dead'] }) }}"
       },
-      "id": "669428ef-c8ec-4f88-937f-b227b5a05026",
+      "id": "5a525d87-a957-4968-9143-24290da8cc22",
       "name": "Tag dead",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -1020,7 +1020,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ text: ($('Record replay').item.json.status === 'rejected' ? 'Rejected by Installer A on replay: ' : 'Gave up after 5 attempts: ') + $('Record replay').item.json.name + ' (' + $('Record replay').item.json.error + '). Needs a person.' }) }}"
       },
-      "id": "d955c618-9b73-466e-a096-2293c280654a",
+      "id": "c44fef48-0dd2-4619-bb78-5aef0773ac3e",
       "name": "Alert: gave up",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -1039,7 +1039,7 @@
           ]
         }
       },
-      "id": "297fb56c-b355-4e8a-9b63-3accc867d1b0",
+      "id": "1405e9d4-8442-40eb-9b43-e687c2d5b1a4",
       "name": "Every day 8 AM",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
@@ -1052,7 +1052,7 @@
       "parameters": {
         "jsCode": "const ledger = $getWorkflowStaticData('global');\nledger.deliveries = ledger.deliveries || {};\nconst day = ms => new Date(ms).toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });\nconst yesterday = day(Date.now() - 864e5);\n// Keep 60 days of history so static data stays small.\nfor (const [key, d] of Object.entries(ledger.deliveries)) {\n  if (Date.now() - d.at > 60 * 864e5) delete ledger.deliveries[key];\n}\nconst rows = Object.values(ledger.deliveries).filter(d => d.day === yesterday);\nconst count = s => rows.filter(d => d.status === s).length;\nconst capVar = Number($vars.INSTALLER_A_DAILY_CAP);\nconst cap = Number.isFinite(capVar) && capVar > 0 ? capVar : 25;\nconst text = rows.length === 0\n  ? `No leads were delivered yesterday (${yesterday}). Check the form, workflow 01 and the n8n webhook.`\n  : `Yesterday (${yesterday}): ${count('delivered')} delivered, ${count('failed')} failed, ${count('dead')} dead, `\n    + `${count('rejected')} rejected, ${count('held')} held at cap. Installer A cap ${count('delivered')}/${cap}.`;\nreturn [{ json: { text } }];\n"
       },
-      "id": "20f2b993-0969-435c-8f1a-12ea4fff2a9a",
+      "id": "88f538ef-f260-4eff-8c69-607f856ebfee",
       "name": "Summarize yesterday",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1072,7 +1072,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ text: $json.text }) }}"
       },
-      "id": "49a93a0c-e3a9-474d-9110-aeb1f9d6ed11",
+      "id": "3ce1a5a0-df4f-44b3-aaf2-fbcad7a6397d",
       "name": "Post summary",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
