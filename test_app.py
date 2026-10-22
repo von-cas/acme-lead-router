@@ -39,6 +39,13 @@ def test_qualify_falls_back_to_rules_when_claude_is_down(monkeypatch):
     assert body["qualification"]["tier"] == "hot"
 
 
+def test_qualify_falls_back_to_rules_without_an_anthropic_key(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY")
+    body = client.post("/qualify", json=LEAD, headers=SVC).json()
+    assert body["qualification"]["source"] == "rules"
+    assert "RuntimeError" in body["qualification"]["reasons"][-1]
+
+
 def test_claude_score_out_of_range_is_rejected(monkeypatch):
     class Block:
         type = "text"

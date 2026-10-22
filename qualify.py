@@ -1,4 +1,5 @@
 import json
+import os
 from typing import List, Literal
 
 import anthropic
@@ -55,6 +56,9 @@ def tier_for(score: int) -> str:
 def qualify_with_claude(lead: dict) -> Qualification:
     # Only the facts the score needs go to Claude: no name, email or phone.
     facts = {key: lead.get(key) for key in ("homeowner", "monthly_bill", "roof_shade", "timeline", "postal_code")}
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        # Without a key the SDK raises a TypeError the fallback below wouldn't catch.
+        raise RuntimeError("ANTHROPIC_API_KEY is not set")
     response = client.beta.messages.create(
         model=MODEL,
         max_tokens=4096,
