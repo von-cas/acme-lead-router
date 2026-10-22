@@ -58,4 +58,9 @@ n8n saves static data only for production runs of an active workflow, not for ma
 After importing, select a Header Auth credential on each HTTP node that has one empty
 (GHL PIT, Lead Router, Installer A), and create these variables:
 `ROUTER_URL`, `WEBHOOK_KEY`, `GHL_FIELD_AI_SCORE`, `GHL_FIELD_AI_TIER`, `GHL_FIELD_AI_SUMMARY`,
-`INSTALLER_A_DAILY_CAP`, `BUYER_OUTAGE`, `SLACK_ALERT_URL`.
+`INSTALLER_A_DAILY_CAP`, `INSTALLER_A_URL` (the buyer's lead endpoint; in the demo the mock buyer, with
+`?outage=1` added to simulate an outage), `SLACK_ALERT_URL`.
+
+Known limit: static data is written when a run ends, so two runs at the same moment can both pass the
+duplicate check. A production build keeps the ledger in a database row claimed atomically; until then
+the buyer's `Idempotency-Key` (one per submission) is the backstop.
