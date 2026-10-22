@@ -1,0 +1,1298 @@
+{
+  "name": "STL-01 Qualify and Deliver",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "acme-lead",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "575f0d57-dc35-4cc3-a295-c0a08f83d8bb",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "f434ff57-d81c-426c-bf67-5f499ea5ffa2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "60fcb309-750a-4bdd-818a-896e44e95869",
+              "leftValue": "={{ $json.query.key === $vars.WEBHOOK_KEY }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bbdc351d-5a49-4f45-8887-da256dfa3290",
+      "name": "Key OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ error: 'bad key' }) }}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "db0cba5c-cd03-416b-a41e-0328073a930a",
+      "name": "Respond 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: true }) }}",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "9b572b1c-d873-4d2f-9fb4-2cf5a61957ad",
+      "name": "Respond 202",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2e654e07-f789-41b0-876b-af8174a77000",
+              "name": "contact_id",
+              "value": "={{ $json.body.customData?.contact_id || $json.body.contact_id || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "2b24717c-6840-4f34-9d5e-36422b9ad36f",
+              "name": "first_name",
+              "value": "={{ $json.body.first_name || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fbd3728b-ab1d-41f5-9052-648235a5004b",
+              "name": "last_name",
+              "value": "={{ $json.body.last_name || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "1f7d54ec-6215-4da5-9525-17ffaa62f367",
+              "name": "email",
+              "value": "={{ $json.body.email || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "2c22455d-7a24-4245-9d5b-667bcb3d303d",
+              "name": "phone",
+              "value": "={{ $json.body.phone || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "8854ab0e-1b8d-4b26-bb3d-b239b07b5dc4",
+              "name": "city",
+              "value": "={{ $json.body.city || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "e0d89938-7b30-4604-bb79-b37a36c3c30e",
+              "name": "postal_code",
+              "value": "={{ $json.body.customData?.postal_code || $json.body.postal_code || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fd4b0abb-9d8a-4841-8506-9a2502bc5992",
+              "name": "monthly_bill",
+              "value": "={{ $json.body.customData?.monthly_bill || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "c1fee046-78ea-4217-8692-8529797cd7d2",
+              "name": "homeowner",
+              "value": "={{ $json.body.customData?.homeowner || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "510a6bc5-0fe6-44dc-b9df-4b2e8daa6c56",
+              "name": "roof_shade",
+              "value": "={{ $json.body.customData?.roof_shade || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a31292ed-7210-4fd6-a19c-6bdc6df77b00",
+              "name": "timeline",
+              "value": "={{ $json.body.customData?.timeline || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "9b82c345-7eb3-4d71-aef9-f2f1134f92fa",
+              "name": "consent",
+              "value": "={{ $json.body.customData?.consent || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "970efe3b-3e85-4939-ba0a-b43b06c97635",
+      "name": "Lead in",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.ROUTER_URL }}/qualify",
+        "options": {
+          "timeout": 20000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}"
+      },
+      "id": "81756fc9-a02e-4ea6-baae-49e726f386ba",
+      "name": "Qualify",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SLACK_ALERT_URL }}",
+        "options": {
+          "timeout": 10000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: 'Scoring service failed for ' + $('Lead in').item.json.first_name + ': ' + ($json.error?.message || 'unknown') + '. The lead is tagged ai-review. Execution ' + $execution.id }) }}"
+      },
+      "id": "ee47de59-7c1e-43f8-8ec8-951cef14de4b",
+      "name": "Alert: scoring down",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Pass the service's answer through, or build a review-only result when scoring failed.\nif ($json.qualification && $json.lead) return { json: $json };\nconst lead = $('Lead in').item.json;\nreturn { json: {\n  lead: { ...lead, lead_key: null },\n  qualification: { score: 0, tier: 'review', reasons: ['Scoring service unavailable'],\n    summary: 'Scoring service unavailable; review this lead by hand.', source: 'none' },\n} };\n"
+      },
+      "id": "12553573-310a-4802-9725-c62b789619fc",
+      "name": "Scored",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $json.lead.contact_id }}",
+        "options": {
+          "timeout": 10000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2023-02-21"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ customFields: [\n  { id: $vars.GHL_FIELD_AI_SCORE, field_value: $json.qualification.score },\n  { id: $vars.GHL_FIELD_AI_TIER, field_value: $json.qualification.tier },\n  { id: $vars.GHL_FIELD_AI_SUMMARY, field_value: $json.qualification.summary }\n] }) }}"
+      },
+      "id": "41d44471-e06b-4621-902e-478a59f0abd0",
+      "name": "Update contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $('Scored').item.json.lead.contact_id }}/tags",
+        "options": {
+          "timeout": 10000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2023-02-21"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ tags: ['ai-' + $('Scored').item.json.qualification.tier] }) }}"
+      },
+      "id": "c06b6998-8fe1-4e28-aa99-9f8155460820",
+      "name": "Add tier tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $('Scored').item.json.lead.contact_id }}/notes",
+        "options": {
+          "timeout": 10000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2023-02-21"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ body: 'AI score ' + $('Scored').item.json.qualification.score + '/100 (' + $('Scored').item.json.qualification.tier + ', ' + $('Scored').item.json.qualification.source + '): ' + $('Scored').item.json.qualification.summary + ' Reasons: ' + $('Scored').item.json.qualification.reasons.join('; ') }) }}"
+      },
+      "id": "48839ece-6d0e-4f7d-a411-8c5c76cc8990",
+      "name": "Add note",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0498b0dc-7b2c-44be-b6c0-2adbd7a74beb",
+              "leftValue": "={{ $('Scored').item.json.lead.consent === true && $('Scored').item.json.lead.homeowner === true && ['hot', 'warm'].includes($('Scored').item.json.qualification.tier) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "167f4940-8ae9-4fc0-bbc4-67bced07a6da",
+      "name": "Sellable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// The delivery ledger lives in this workflow's static data, so the replay and the morning check\n// (the other two triggers in this workflow) can read it. n8n saves static data only for\n// production runs of the active workflow, not for manual test runs.\nconst ledger = $getWorkflowStaticData('global');\nledger.deliveries = ledger.deliveries || {};\nconst { lead } = $('Scored').item.json;\nconst buyer = 'installer-a';\nconst prior = ledger.deliveries[`${buyer}:${lead.lead_key}`];\nconst thirtyDays = 30 * 24 * 3600 * 1000;\nif (prior && prior.status === 'delivered' && Date.now() - prior.at < thirtyDays) {\n  return { json: { action: 'duplicate' } };\n}\nconst cap = Number($vars.INSTALLER_A_DAILY_CAP || 25);\nconst deliveredToday = Object.values(ledger.deliveries)\n  .filter(d => d.buyer === buyer && d.status === 'delivered' && d.day === lead.day).length;\nif (deliveredToday >= cap) {\n  ledger.deliveries[`${buyer}:${lead.lead_key}`] = { buyer, status: 'held', day: lead.day, at: Date.now(),\n    attempts: 0, contact_id: lead.contact_id, name: lead.first_name };\n  return { json: { action: 'cap', deliveredToday, cap } };\n}\nreturn { json: { action: 'deliver', deliveredToday, cap } };\n"
+      },
+      "id": "8ff42933-b2de-42a9-b5c8-b68fead5fc27",
+      "name": "Check ledger",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e2a19080-bdb4-4b42-be18-c9b6d28edfe2",
+              "leftValue": "={{ $json.action === 'deliver' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9a16ce15-39b5-4d7c-85ff-f555d001f933",
+      "name": "Deliver?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2640,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $('Scored').item.json.lead.contact_id }}/tags",
+        "options": {
+          "timeout": 10000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2023-02-21"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ tags: [$json.action === 'duplicate' ? 'duplicate-skipped' : 'cap-reached'] }) }}"
+      },
+      "id": "31b86bfa-7406-41fc-897d-683898775e1d",
+      "name": "Tag skipped",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2860,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.ROUTER_URL }}/map/installer-a",
+        "options": {
+          "timeout": 10000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ lead: $('Scored').item.json.lead, qualification: $('Scored').item.json.qualification }) }}"
+      },
+      "id": "8ae89544-8a39-4b06-b093-af28f1fd07e7",
+      "name": "Map",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2860,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.ROUTER_URL }}/mock-buyer/installer-a/leads",
+        "options": {
+          "timeout": 10000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $('Scored').item.json.lead.lead_key }}"
+            },
+            {
+              "name": "X-Demo-Outage",
+              "value": "={{ $vars.BUYER_OUTAGE }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}"
+      },
+      "id": "0cdd74b4-0df3-48f2-bd49-425b3a6b7cd2",
+      "name": "Deliver",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3080,
+        100
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const ledger = $getWorkflowStaticData('global');\nledger.deliveries = ledger.deliveries || {};\nconst { lead } = $('Scored').item.json;\nledger.deliveries[`installer-a:${lead.lead_key}`] = { buyer: 'installer-a', status: 'delivered', day: lead.day,\n  at: Date.now(), attempts: 1, contact_id: lead.contact_id, name: lead.first_name, buyer_lead_id: $json.buyer_lead_id };\nreturn { json: { buyer_lead_id: $json.buyer_lead_id } };\n"
+      },
+      "id": "7cb7b078-12d5-42aa-86c2-c2fefc80cfd6",
+      "name": "Record delivered",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3300,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $('Scored').item.json.lead.contact_id }}/tags",
+        "options": {
+          "timeout": 10000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2023-02-21"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ tags: ['delivered-installer-a'] }) }}"
+      },
+      "id": "dbab0516-de65-476c-a969-1b5bb823366c",
+      "name": "Tag delivered",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const ledger = $getWorkflowStaticData('global');\nledger.deliveries = ledger.deliveries || {};\nconst { lead } = $('Scored').item.json;\nconst error = $json.error?.message || 'unknown error';\nledger.deliveries[`installer-a:${lead.lead_key}`] = { buyer: 'installer-a', status: 'failed', day: lead.day,\n  at: Date.now(), attempts: 1, contact_id: lead.contact_id, name: lead.first_name,\n  payload: $('Map').item.json, last_error: error };\nreturn { json: { name: lead.first_name, error } };\n"
+      },
+      "id": "7938b5cd-0926-42a0-a380-2b783053327d",
+      "name": "Record failed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3300,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $('Scored').item.json.lead.contact_id }}/tags",
+        "options": {
+          "timeout": 10000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2023-02-21"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ tags: ['delivery-failed'] }) }}"
+      },
+      "id": "39f98dc5-e846-413e-a73f-c488524ac4a9",
+      "name": "Tag failed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3520,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SLACK_ALERT_URL }}",
+        "options": {
+          "timeout": 10000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: 'Delivery failed: ' + $('Record failed').item.json.name + ' to Installer A after 3 tries (' + $('Record failed').item.json.error + '). The lead is safe in GoHighLevel with tag delivery-failed. Replay runs every 15 minutes. Execution ' + $execution.id }) }}"
+      },
+      "id": "fb6dfd38-0e79-4936-a103-bc0fadeb3e0b",
+      "name": "Alert: delivery failed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3740,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "7ca3a424-0a69-43ee-9e3e-65b885d55c6d",
+      "name": "Every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ledger = $getWorkflowStaticData('global');\nreturn Object.entries(ledger.deliveries || {})\n  .filter(([, d]) => d.status === 'failed' && d.attempts < 5)\n  .map(([key, d]) => ({ json: { key, ...d } }));\n"
+      },
+      "id": "47145843-2860-4d38-b97e-b84341f8a6b8",
+      "name": "Pick failed deliveries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.ROUTER_URL }}/mock-buyer/installer-a/leads",
+        "options": {
+          "timeout": 10000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.key.split(':')[1] }}"
+            },
+            {
+              "name": "X-Demo-Outage",
+              "value": "={{ $vars.BUYER_OUTAGE }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}"
+      },
+      "id": "e50be98e-ebc0-481e-9dc4-8c79fe004acf",
+      "name": "Deliver again",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        800
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const ledger = $getWorkflowStaticData('global');\nconst d = ledger.deliveries[$('Pick failed deliveries').item.json.key];\nObject.assign(d, { status: 'delivered', attempts: d.attempts + 1, recovered_at: Date.now(), buyer_lead_id: $json.buyer_lead_id });\nreturn { json: { contact_id: d.contact_id, name: d.name, attempts: d.attempts } };\n"
+      },
+      "id": "6c4d3d8b-e694-4e32-ad5f-f881c131ecce",
+      "name": "Record recovered",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $json.contact_id }}/tags",
+        "options": {
+          "timeout": 10000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2023-02-21"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ tags: ['delivery-failed'] }) }}"
+      },
+      "id": "8121651c-eb9a-40da-ad2b-e9bfe0d8ba96",
+      "name": "Remove failed tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $('Record recovered').item.json.contact_id }}/tags",
+        "options": {
+          "timeout": 10000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2023-02-21"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ tags: ['delivered-installer-a'] }) }}"
+      },
+      "id": "56eec79a-6a5f-4c74-95f8-9ddc5639dc8a",
+      "name": "Add delivered tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SLACK_ALERT_URL }}",
+        "options": {
+          "timeout": 10000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: 'Recovered: ' + $('Record recovered').item.json.name + ' delivered to Installer A on attempt ' + $('Record recovered').item.json.attempts + '.' }) }}"
+      },
+      "id": "c5588d22-c316-4ddd-b38a-903827023c0a",
+      "name": "Alert: recovered",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const ledger = $getWorkflowStaticData('global');\nconst d = ledger.deliveries[$('Pick failed deliveries').item.json.key];\nd.attempts += 1;\nd.last_error = $json.error?.message || 'unknown error';\nif (d.attempts >= 5) d.status = 'dead';\nreturn { json: { contact_id: d.contact_id, name: d.name, attempts: d.attempts, dead: d.status === 'dead' } };\n"
+      },
+      "id": "30aae7fa-f5d4-40d5-a8a0-f2d8ea7ace14",
+      "name": "Record retry failure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        900
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b0c07fb9-72ae-475e-89e3-005e7a5b5a2d",
+              "leftValue": "={{ $json.dead }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d7812c80-e53b-41ec-8659-2a829900170a",
+      "name": "Gave up?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        900
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $json.contact_id }}/tags",
+        "options": {
+          "timeout": 10000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2023-02-21"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ tags: ['delivery-dead'] }) }}"
+      },
+      "id": "c4d0216e-65cd-40a0-84c1-f46b0eaaa0ad",
+      "name": "Tag dead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        900
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SLACK_ALERT_URL }}",
+        "options": {
+          "timeout": 10000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: 'Gave up after 5 attempts: ' + $('Record retry failure').item.json.name + ' to Installer A. Needs a person.' }) }}"
+      },
+      "id": "cebf1784-6c26-4d35-b283-d6840562d1d7",
+      "name": "Alert: gave up",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        900
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "fb5d3424-ce09-4e0e-8593-8dadfaf2a2c5",
+      "name": "Every day 8 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        1150
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ledger = $getWorkflowStaticData('global');\nledger.deliveries = ledger.deliveries || {};\nconst day = ms => new Date(ms).toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });\nconst yesterday = day(Date.now() - 864e5);\n// Keep 60 days of history so static data stays small.\nfor (const [key, d] of Object.entries(ledger.deliveries)) {\n  if (Date.now() - d.at > 60 * 864e5) delete ledger.deliveries[key];\n}\nconst rows = Object.values(ledger.deliveries).filter(d => d.day === yesterday);\nconst count = s => rows.filter(d => d.status === s).length;\nconst cap = Number($vars.INSTALLER_A_DAILY_CAP || 25);\nconst text = rows.length === 0\n  ? `No leads were delivered yesterday (${yesterday}). Check the form, workflow 01 and the n8n webhook.`\n  : `Yesterday (${yesterday}): ${count('delivered')} delivered, ${count('failed')} failed, ${count('dead')} dead, `\n    + `${count('held')} held at cap. Installer A cap ${count('delivered')}/${cap}.`;\nreturn [{ json: { text } }];\n"
+      },
+      "id": "18720e2f-3842-4f44-b322-0f8d94e6aad6",
+      "name": "Summarize yesterday",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        1150
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SLACK_ALERT_URL }}",
+        "options": {
+          "timeout": 10000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: $json.text }) }}"
+      },
+      "id": "d408ea49-6c62-4c7e-89ff-48860db2de49",
+      "name": "Post summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        1150
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Key OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Key OK?": {
+      "main": [
+        [
+          {
+            "node": "Respond 202",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond 202": {
+      "main": [
+        [
+          {
+            "node": "Lead in",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead in": {
+      "main": [
+        [
+          {
+            "node": "Qualify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qualify": {
+      "main": [
+        [
+          {
+            "node": "Scored",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert: scoring down",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert: scoring down": {
+      "main": [
+        [
+          {
+            "node": "Scored",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scored": {
+      "main": [
+        [
+          {
+            "node": "Update contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update contact": {
+      "main": [
+        [
+          {
+            "node": "Add tier tag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add tier tag": {
+      "main": [
+        [
+          {
+            "node": "Add note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add note": {
+      "main": [
+        [
+          {
+            "node": "Sellable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sellable?": {
+      "main": [
+        [
+          {
+            "node": "Check ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check ledger": {
+      "main": [
+        [
+          {
+            "node": "Deliver?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deliver?": {
+      "main": [
+        [
+          {
+            "node": "Map",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tag skipped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map": {
+      "main": [
+        [
+          {
+            "node": "Deliver",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deliver": {
+      "main": [
+        [
+          {
+            "node": "Record delivered",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record delivered": {
+      "main": [
+        [
+          {
+            "node": "Tag delivered",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record failed": {
+      "main": [
+        [
+          {
+            "node": "Tag failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag failed": {
+      "main": [
+        [
+          {
+            "node": "Alert: delivery failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 15 minutes": {
+      "main": [
+        [
+          {
+            "node": "Pick failed deliveries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick failed deliveries": {
+      "main": [
+        [
+          {
+            "node": "Deliver again",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deliver again": {
+      "main": [
+        [
+          {
+            "node": "Record recovered",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record retry failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record recovered": {
+      "main": [
+        [
+          {
+            "node": "Remove failed tag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove failed tag": {
+      "main": [
+        [
+          {
+            "node": "Add delivered tag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add delivered tag": {
+      "main": [
+        [
+          {
+            "node": "Alert: recovered",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record retry failure": {
+      "main": [
+        [
+          {
+            "node": "Gave up?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gave up?": {
+      "main": [
+        [
+          {
+            "node": "Tag dead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag dead": {
+      "main": [
+        [
+          {
+            "node": "Alert: gave up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every day 8 AM": {
+      "main": [
+        [
+          {
+            "node": "Summarize yesterday",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize yesterday": {
+      "main": [
+        [
+          {
+            "node": "Post summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Chicago",
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  },
+  "pinData": {}
+}

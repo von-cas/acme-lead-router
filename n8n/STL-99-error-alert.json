@@ -1,0 +1,54 @@
+{
+  "name": "STL-99 Error Alert",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "633b3229-a3c7-4307-b36d-28b92716c803",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SLACK_ALERT_URL }}",
+        "options": {
+          "timeout": 10000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: 'n8n error in ' + $json.workflow.name + ' at node ' + $json.execution.lastNodeExecuted + ': ' + ($json.execution.error?.message || 'unknown') + '. ' + ($json.execution.url || '') }) }}"
+      },
+      "id": "eb52d21b-d03e-405a-b7a9-a9a05bfbd887",
+      "name": "Alert: n8n error",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Alert: n8n error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Chicago"
+  },
+  "pinData": {}
+}
