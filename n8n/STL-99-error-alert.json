@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {},
-      "id": "633b3229-a3c7-4307-b36d-28b92716c803",
+      "id": "4fa3b6f2-44fe-4cbb-ab39-323236ae8271",
       "name": "Error Trigger",
       "type": "n8n-nodes-base.errorTrigger",
       "typeVersion": 1,
@@ -23,7 +23,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ text: 'n8n error in ' + $json.workflow.name + ' at node ' + $json.execution.lastNodeExecuted + ': ' + ($json.execution.error?.message || 'unknown') + '. ' + ($json.execution.url || '') }) }}"
       },
-      "id": "eb52d21b-d03e-405a-b7a9-a9a05bfbd887",
+      "id": "8a372ea0-e714-4be7-a00e-12301fecf335",
       "name": "Alert: n8n error",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,

@@ -8,7 +8,7 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "575f0d57-dc35-4cc3-a295-c0a08f83d8bb",
+      "id": "980cbaea-6346-4d99-952e-0b14be20c82b",
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
@@ -16,7 +16,7 @@
         0,
         300
       ],
-      "webhookId": "f434ff57-d81c-426c-bf67-5f499ea5ffa2"
+      "webhookId": "3bf0d7da-9a47-48d6-bf3d-cdd2dfc7a793"
     },
     {
       "parameters": {
@@ -29,7 +29,7 @@
           },
           "conditions": [
             {
-              "id": "60fcb309-750a-4bdd-818a-896e44e95869",
+              "id": "5dae60ff-3433-4600-9d5f-f75d8ab42b1f",
               "leftValue": "={{ $json.query.key === $vars.WEBHOOK_KEY }}",
               "rightValue": "",
               "operator": {
@@ -43,7 +43,7 @@
         },
         "options": {}
       },
-      "id": "bbdc351d-5a49-4f45-8887-da256dfa3290",
+      "id": "06d76d36-4e3b-4157-a74e-891d580d24b4",
       "name": "Key OK?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -60,7 +60,7 @@
           "responseCode": 401
         }
       },
-      "id": "db0cba5c-cd03-416b-a41e-0328073a930a",
+      "id": "dbe328fb-23e0-49fc-96eb-a67e4e6c1b39",
       "name": "Respond 401",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
@@ -77,7 +77,7 @@
           "responseCode": 202
         }
       },
-      "id": "9b572b1c-d873-4d2f-9fb4-2cf5a61957ad",
+      "id": "36c5b1c0-04ea-4c68-8a3d-126f022a816b",
       "name": "Respond 202",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
@@ -91,73 +91,73 @@
         "assignments": {
           "assignments": [
             {
-              "id": "2e654e07-f789-41b0-876b-af8174a77000",
+              "id": "4ef429d0-8ccb-4b11-a631-89617b35e369",
               "name": "contact_id",
               "value": "={{ $json.body.customData?.contact_id || $json.body.contact_id || '' }}",
               "type": "string"
             },
             {
-              "id": "2b24717c-6840-4f34-9d5e-36422b9ad36f",
+              "id": "0a59eb31-52a4-4c9a-a8f0-039b65314855",
               "name": "first_name",
               "value": "={{ $json.body.first_name || '' }}",
               "type": "string"
             },
             {
-              "id": "fbd3728b-ab1d-41f5-9052-648235a5004b",
+              "id": "0ed52a37-633c-497f-8eda-b59733b622f2",
               "name": "last_name",
               "value": "={{ $json.body.last_name || '' }}",
               "type": "string"
             },
             {
-              "id": "1f7d54ec-6215-4da5-9525-17ffaa62f367",
+              "id": "4e09f5c2-ea6c-487d-8acf-61657f7c6c59",
               "name": "email",
               "value": "={{ $json.body.email || '' }}",
               "type": "string"
             },
             {
-              "id": "2c22455d-7a24-4245-9d5b-667bcb3d303d",
+              "id": "1794f174-0ab7-4ac4-923b-4fb3459be3a5",
               "name": "phone",
               "value": "={{ $json.body.phone || '' }}",
               "type": "string"
             },
             {
-              "id": "8854ab0e-1b8d-4b26-bb3d-b239b07b5dc4",
+              "id": "2ce2f85a-9d2c-4e21-959b-1bca53027336",
               "name": "city",
               "value": "={{ $json.body.city || '' }}",
               "type": "string"
             },
             {
-              "id": "e0d89938-7b30-4604-bb79-b37a36c3c30e",
+              "id": "6b3b47fb-cf77-4056-a330-6857d73ae6c8",
               "name": "postal_code",
               "value": "={{ $json.body.customData?.postal_code || $json.body.postal_code || '' }}",
               "type": "string"
             },
             {
-              "id": "fd4b0abb-9d8a-4841-8506-9a2502bc5992",
+              "id": "58fa8373-54ee-40c9-9b85-73926ce6dcd2",
               "name": "monthly_bill",
               "value": "={{ $json.body.customData?.monthly_bill || '' }}",
               "type": "string"
             },
             {
-              "id": "c1fee046-78ea-4217-8692-8529797cd7d2",
+              "id": "5035426b-5451-4548-8ff8-ed817d75211d",
               "name": "homeowner",
               "value": "={{ $json.body.customData?.homeowner || '' }}",
               "type": "string"
             },
             {
-              "id": "510a6bc5-0fe6-44dc-b9df-4b2e8daa6c56",
+              "id": "a399d24c-92be-451b-b818-75aeb419e426",
               "name": "roof_shade",
               "value": "={{ $json.body.customData?.roof_shade || '' }}",
               "type": "string"
             },
             {
-              "id": "a31292ed-7210-4fd6-a19c-6bdc6df77b00",
+              "id": "098e5a31-5ed8-477f-b06d-789d307096d4",
               "name": "timeline",
               "value": "={{ $json.body.customData?.timeline || '' }}",
               "type": "string"
             },
             {
-              "id": "9b82c345-7eb3-4d71-aef9-f2f1134f92fa",
+              "id": "2d0df221-cb21-49ca-9ede-d46be12d85a0",
               "name": "consent",
               "value": "={{ $json.body.customData?.consent || '' }}",
               "type": "string"
@@ -166,7 +166,7 @@
         },
         "options": {}
       },
-      "id": "970efe3b-3e85-4939-ba0a-b43b06c97635",
+      "id": "185c0480-a98e-4432-aa91-12a6abbf1faf",
       "name": "Lead in",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -188,7 +188,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json) }}"
       },
-      "id": "81756fc9-a02e-4ea6-baae-49e726f386ba",
+      "id": "0d78dd9b-7cb9-4ec7-bc05-24894876581d",
       "name": "Qualify",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -212,7 +212,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ text: 'Scoring service failed for ' + $('Lead in').item.json.first_name + ': ' + ($json.error?.message || 'unknown') + '. The lead is tagged ai-review. Execution ' + $execution.id }) }}"
       },
-      "id": "ee47de59-7c1e-43f8-8ec8-951cef14de4b",
+      "id": "75f572c0-bad6-4c1f-aaed-bd5a9f2f585d",
       "name": "Alert: scoring down",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -226,7 +226,7 @@
         "mode": "runOnceForEachItem",
         "jsCode": "// Pass the service's answer through, or build a review-only result when scoring failed.\nif ($json.qualification && $json.lead) return { json: $json };\nconst lead = $('Lead in').item.json;\nreturn { json: {\n  lead: { ...lead, lead_key: null },\n  qualification: { score: 0, tier: 'review', reasons: ['Scoring service unavailable'],\n    summary: 'Scoring service unavailable; review this lead by hand.', source: 'none' },\n} };\n"
       },
-      "id": "12553573-310a-4802-9725-c62b789619fc",
+      "id": "67db1fc4-77a5-43d1-824d-00f71c678302",
       "name": "Scored",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -257,7 +257,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ customFields: [\n  { id: $vars.GHL_FIELD_AI_SCORE, field_value: $json.qualification.score },\n  { id: $vars.GHL_FIELD_AI_TIER, field_value: $json.qualification.tier },\n  { id: $vars.GHL_FIELD_AI_SUMMARY, field_value: $json.qualification.summary }\n] }) }}"
       },
-      "id": "41d44471-e06b-4621-902e-478a59f0abd0",
+      "id": "08373c49-64ab-47a2-bcbb-a87f65d9767c",
       "name": "Update contact",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -288,7 +288,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: ['ai-' + $('Scored').item.json.qualification.tier] }) }}"
       },
-      "id": "c06b6998-8fe1-4e28-aa99-9f8155460820",
+      "id": "115e79dd-eb40-49eb-937b-9eee503ca0a3",
       "name": "Add tier tag",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -317,9 +317,9 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ body: 'AI score ' + $('Scored').item.json.qualification.score + '/100 (' + $('Scored').item.json.qualification.tier + ', ' + $('Scored').item.json.qualification.source + '): ' + $('Scored').item.json.qualification.summary + ' Reasons: ' + $('Scored').item.json.qualification.reasons.join('; ') }) }}"
+        "jsonBody": "={{ JSON.stringify({ body: 'AI score ' + $('Scored').item.json.qualification.score + '/100 (' + $('Scored').item.json.qualification.tier + ', ' + ({ rules: 'rules', none: 'not scored' }[$('Scored').item.json.qualification.source] || 'AI model') + '): ' + $('Scored').item.json.qualification.summary + ' Reasons: ' + $('Scored').item.json.qualification.reasons.join('; ') }) }}"
       },
-      "id": "48839ece-6d0e-4f7d-a411-8c5c76cc8990",
+      "id": "a6b9fb51-5e2e-4634-9841-067b3633ca07",
       "name": "Add note",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -339,7 +339,7 @@
           },
           "conditions": [
             {
-              "id": "0498b0dc-7b2c-44be-b6c0-2adbd7a74beb",
+              "id": "a9823075-4e22-4c2d-8359-ec4a39d9875c",
               "leftValue": "={{ $('Scored').item.json.lead.consent === true && $('Scored').item.json.lead.homeowner === true && ['hot', 'warm'].includes($('Scored').item.json.qualification.tier) }}",
               "rightValue": "",
               "operator": {
@@ -353,7 +353,7 @@
         },
         "options": {}
       },
-      "id": "167f4940-8ae9-4fc0-bbc4-67bced07a6da",
+      "id": "2532db89-43c2-4150-ac31-7b910ac56b19",
       "name": "Sellable?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -367,7 +367,7 @@
         "mode": "runOnceForEachItem",
         "jsCode": "// The delivery ledger lives in this workflow's static data, so the replay and the morning check\n// (the other two triggers in this workflow) can read it. n8n saves static data only for\n// production runs of the active workflow, not for manual test runs.\nconst ledger = $getWorkflowStaticData('global');\nledger.deliveries = ledger.deliveries || {};\nconst { lead } = $('Scored').item.json;\nconst buyer = 'installer-a';\nconst prior = ledger.deliveries[`${buyer}:${lead.lead_key}`];\nconst thirtyDays = 30 * 24 * 3600 * 1000;\nif (prior && prior.status === 'delivered' && Date.now() - prior.at < thirtyDays) {\n  return { json: { action: 'duplicate' } };\n}\nconst cap = Number($vars.INSTALLER_A_DAILY_CAP || 25);\nconst deliveredToday = Object.values(ledger.deliveries)\n  .filter(d => d.buyer === buyer && d.status === 'delivered' && d.day === lead.day).length;\nif (deliveredToday >= cap) {\n  ledger.deliveries[`${buyer}:${lead.lead_key}`] = { buyer, status: 'held', day: lead.day, at: Date.now(),\n    attempts: 0, contact_id: lead.contact_id, name: lead.first_name };\n  return { json: { action: 'cap', deliveredToday, cap } };\n}\nreturn { json: { action: 'deliver', deliveredToday, cap } };\n"
       },
-      "id": "8ff42933-b2de-42a9-b5c8-b68fead5fc27",
+      "id": "9f25063e-ee79-4aa2-81f9-ce67fde0d1a7",
       "name": "Check ledger",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -387,7 +387,7 @@
           },
           "conditions": [
             {
-              "id": "e2a19080-bdb4-4b42-be18-c9b6d28edfe2",
+              "id": "5dab9d9f-01fe-4fa1-94d3-989c132d415d",
               "leftValue": "={{ $json.action === 'deliver' }}",
               "rightValue": "",
               "operator": {
@@ -401,7 +401,7 @@
         },
         "options": {}
       },
-      "id": "9a16ce15-39b5-4d7c-85ff-f555d001f933",
+      "id": "ba69601f-4667-4b43-946f-645289dd4709",
       "name": "Deliver?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -432,7 +432,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: [$json.action === 'duplicate' ? 'duplicate-skipped' : 'cap-reached'] }) }}"
       },
-      "id": "31b86bfa-7406-41fc-897d-683898775e1d",
+      "id": "097cb340-5f5a-40ce-9031-6f77cc92b973",
       "name": "Tag skipped",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -454,7 +454,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ lead: $('Scored').item.json.lead, qualification: $('Scored').item.json.qualification }) }}"
       },
-      "id": "8ae89544-8a39-4b06-b093-af28f1fd07e7",
+      "id": "f14938ce-b36c-4dd3-a2ee-b90976e61228",
       "name": "Map",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -489,7 +489,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json) }}"
       },
-      "id": "0cdd74b4-0df3-48f2-bd49-425b3a6b7cd2",
+      "id": "8b6ff190-1fa3-451e-89a4-817c0ddc9bbb",
       "name": "Deliver",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -507,7 +507,7 @@
         "mode": "runOnceForEachItem",
         "jsCode": "const ledger = $getWorkflowStaticData('global');\nledger.deliveries = ledger.deliveries || {};\nconst { lead } = $('Scored').item.json;\nledger.deliveries[`installer-a:${lead.lead_key}`] = { buyer: 'installer-a', status: 'delivered', day: lead.day,\n  at: Date.now(), attempts: 1, contact_id: lead.contact_id, name: lead.first_name, buyer_lead_id: $json.buyer_lead_id };\nreturn { json: { buyer_lead_id: $json.buyer_lead_id } };\n"
       },
-      "id": "7cb7b078-12d5-42aa-86c2-c2fefc80cfd6",
+      "id": "11095ada-b8b7-4110-9bd8-74eebaa6c915",
       "name": "Record delivered",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -538,7 +538,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: ['delivered-installer-a'] }) }}"
       },
-      "id": "dbab0516-de65-476c-a969-1b5bb823366c",
+      "id": "e1153508-8b34-4d5c-ba85-f72990ef9ef9",
       "name": "Tag delivered",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -552,7 +552,7 @@
         "mode": "runOnceForEachItem",
         "jsCode": "const ledger = $getWorkflowStaticData('global');\nledger.deliveries = ledger.deliveries || {};\nconst { lead } = $('Scored').item.json;\nconst error = $json.error?.message || 'unknown error';\nledger.deliveries[`installer-a:${lead.lead_key}`] = { buyer: 'installer-a', status: 'failed', day: lead.day,\n  at: Date.now(), attempts: 1, contact_id: lead.contact_id, name: lead.first_name,\n  payload: $('Map').item.json, last_error: error };\nreturn { json: { name: lead.first_name, error } };\n"
       },
-      "id": "7938b5cd-0926-42a0-a380-2b783053327d",
+      "id": "9888774d-ca36-4017-a973-529e4b610923",
       "name": "Record failed",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -583,7 +583,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: ['delivery-failed'] }) }}"
       },
-      "id": "39f98dc5-e846-413e-a73f-c488524ac4a9",
+      "id": "94f6fce2-5e1a-401c-ac0f-9f15a7bc03d6",
       "name": "Tag failed",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -603,7 +603,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ text: 'Delivery failed: ' + $('Record failed').item.json.name + ' to Installer A after 3 tries (' + $('Record failed').item.json.error + '). The lead is safe in GoHighLevel with tag delivery-failed. Replay runs every 15 minutes. Execution ' + $execution.id }) }}"
       },
-      "id": "fb6dfd38-0e79-4936-a103-bc0fadeb3e0b",
+      "id": "ba0f858c-37eb-45d1-a347-22300b5f4649",
       "name": "Alert: delivery failed",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -623,7 +623,7 @@
           ]
         }
       },
-      "id": "7ca3a424-0a69-43ee-9e3e-65b885d55c6d",
+      "id": "85e9d691-d419-4694-8134-51b607088070",
       "name": "Every 15 minutes",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
@@ -636,7 +636,7 @@
       "parameters": {
         "jsCode": "const ledger = $getWorkflowStaticData('global');\nreturn Object.entries(ledger.deliveries || {})\n  .filter(([, d]) => d.status === 'failed' && d.attempts < 5)\n  .map(([key, d]) => ({ json: { key, ...d } }));\n"
       },
-      "id": "47145843-2860-4d38-b97e-b84341f8a6b8",
+      "id": "2d645fca-d84a-483f-9880-879472a7ce9a",
       "name": "Pick failed deliveries",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -671,7 +671,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json.payload) }}"
       },
-      "id": "e50be98e-ebc0-481e-9dc4-8c79fe004acf",
+      "id": "096f9455-b5e6-48a2-bdd3-02ee8c5d06fd",
       "name": "Deliver again",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -689,7 +689,7 @@
         "mode": "runOnceForEachItem",
         "jsCode": "const ledger = $getWorkflowStaticData('global');\nconst d = ledger.deliveries[$('Pick failed deliveries').item.json.key];\nObject.assign(d, { status: 'delivered', attempts: d.attempts + 1, recovered_at: Date.now(), buyer_lead_id: $json.buyer_lead_id });\nreturn { json: { contact_id: d.contact_id, name: d.name, attempts: d.attempts } };\n"
       },
-      "id": "6c4d3d8b-e694-4e32-ad5f-f881c131ecce",
+      "id": "9dc721a4-6b65-43a6-8a02-4d5960f12369",
       "name": "Record recovered",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -720,7 +720,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: ['delivery-failed'] }) }}"
       },
-      "id": "8121651c-eb9a-40da-ad2b-e9bfe0d8ba96",
+      "id": "33b0eb78-eb70-44e6-ba2f-f1c6c282196b",
       "name": "Remove failed tag",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -751,7 +751,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: ['delivered-installer-a'] }) }}"
       },
-      "id": "56eec79a-6a5f-4c74-95f8-9ddc5639dc8a",
+      "id": "572b3a94-691e-4d12-b460-32a35ea9b5be",
       "name": "Add delivered tag",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -771,7 +771,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ text: 'Recovered: ' + $('Record recovered').item.json.name + ' delivered to Installer A on attempt ' + $('Record recovered').item.json.attempts + '.' }) }}"
       },
-      "id": "c5588d22-c316-4ddd-b38a-903827023c0a",
+      "id": "2be0ca67-3c9d-4bbd-982f-31cb5098e513",
       "name": "Alert: recovered",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -785,7 +785,7 @@
         "mode": "runOnceForEachItem",
         "jsCode": "const ledger = $getWorkflowStaticData('global');\nconst d = ledger.deliveries[$('Pick failed deliveries').item.json.key];\nd.attempts += 1;\nd.last_error = $json.error?.message || 'unknown error';\nif (d.attempts >= 5) d.status = 'dead';\nreturn { json: { contact_id: d.contact_id, name: d.name, attempts: d.attempts, dead: d.status === 'dead' } };\n"
       },
-      "id": "30aae7fa-f5d4-40d5-a8a0-f2d8ea7ace14",
+      "id": "fe720cf9-709b-40cf-ba53-56d9a4cf24f6",
       "name": "Record retry failure",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -805,7 +805,7 @@
           },
           "conditions": [
             {
-              "id": "b0c07fb9-72ae-475e-89e3-005e7a5b5a2d",
+              "id": "8d04d0ab-06f0-4e71-81dd-1ef29e24b6d1",
               "leftValue": "={{ $json.dead }}",
               "rightValue": "",
               "operator": {
@@ -819,7 +819,7 @@
         },
         "options": {}
       },
-      "id": "d7812c80-e53b-41ec-8659-2a829900170a",
+      "id": "ab53b659-9ebb-4225-937d-02381af2cbc0",
       "name": "Gave up?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -850,7 +850,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ tags: ['delivery-dead'] }) }}"
       },
-      "id": "c4d0216e-65cd-40a0-84c1-f46b0eaaa0ad",
+      "id": "b5b3d80e-a9ca-4fae-ac8b-8b9737477c78",
       "name": "Tag dead",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -870,7 +870,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ text: 'Gave up after 5 attempts: ' + $('Record retry failure').item.json.name + ' to Installer A. Needs a person.' }) }}"
       },
-      "id": "cebf1784-6c26-4d35-b283-d6840562d1d7",
+      "id": "eb61f2e8-7878-4330-b1de-866f2cb3f05a",
       "name": "Alert: gave up",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -889,7 +889,7 @@
           ]
         }
       },
-      "id": "fb5d3424-ce09-4e0e-8593-8dadfaf2a2c5",
+      "id": "eb70a4a3-abf1-4229-8dcc-823df23ae47b",
       "name": "Every day 8 AM",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
@@ -902,7 +902,7 @@
       "parameters": {
         "jsCode": "const ledger = $getWorkflowStaticData('global');\nledger.deliveries = ledger.deliveries || {};\nconst day = ms => new Date(ms).toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });\nconst yesterday = day(Date.now() - 864e5);\n// Keep 60 days of history so static data stays small.\nfor (const [key, d] of Object.entries(ledger.deliveries)) {\n  if (Date.now() - d.at > 60 * 864e5) delete ledger.deliveries[key];\n}\nconst rows = Object.values(ledger.deliveries).filter(d => d.day === yesterday);\nconst count = s => rows.filter(d => d.status === s).length;\nconst cap = Number($vars.INSTALLER_A_DAILY_CAP || 25);\nconst text = rows.length === 0\n  ? `No leads were delivered yesterday (${yesterday}). Check the form, workflow 01 and the n8n webhook.`\n  : `Yesterday (${yesterday}): ${count('delivered')} delivered, ${count('failed')} failed, ${count('dead')} dead, `\n    + `${count('held')} held at cap. Installer A cap ${count('delivered')}/${cap}.`;\nreturn [{ json: { text } }];\n"
       },
-      "id": "18720e2f-3842-4f44-b322-0f8d94e6aad6",
+      "id": "175b409e-d849-4146-9855-2ba2f32b8aef",
       "name": "Summarize yesterday",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -922,7 +922,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ text: $json.text }) }}"
       },
-      "id": "d408ea49-6c62-4c7e-89ff-48860db2de49",
+      "id": "b5e4c191-0fa3-4723-9af9-4197d2bb77e2",
       "name": "Post summary",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,

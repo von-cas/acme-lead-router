@@ -114,7 +114,8 @@ f.node("Add tier tag", HTTP, 4.2, 1760, 300, http(
 f.node("Add note", HTTP, 4.2, 1980, 300, http(
     "POST", "=" + GHL + "/contacts/{{ " + SCORED + ".lead.contact_id }}/notes", auth=True, headers=GHL_V,
     body="={{ JSON.stringify({ body: 'AI score ' + " + SCORED + ".qualification.score + '/100 (' + " + SCORED
-         + ".qualification.tier + ', ' + " + SCORED + ".qualification.source + '): ' + " + SCORED
+         + ".qualification.tier + ', ' + ({ rules: 'rules', none: 'not scored' }[" + SCORED
+         + ".qualification.source] || 'AI model') + '): ' + " + SCORED
          + ".qualification.summary + ' Reasons: ' + " + SCORED + ".qualification.reasons.join('; ') }) }}"))
 f.node("Sellable?", IF, 2.2, 2200, 300, if_true(
     "={{ " + SCORED + ".lead.consent === true && " + SCORED + ".lead.homeowner === true && ['hot', 'warm'].includes("
