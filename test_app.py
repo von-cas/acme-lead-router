@@ -118,5 +118,6 @@ def test_map_installer_a_and_missing_fields():
 def test_mock_buyer_outage_and_auth():
     headers = {"Authorization": "Bearer buyer", "Idempotency-Key": "lead-t1"}
     assert client.post("/mock-buyer/installer-a/leads", json={}, headers=headers).status_code == 201
-    assert client.post("/mock-buyer/installer-a/leads", json={}, headers={**headers, "X-Demo-Outage": "1"}).status_code == 503
+    assert client.post("/mock-buyer/installer-a/leads?outage=1", json={}, headers=headers).status_code == 503
+    assert client.post("/mock-buyer/installer-a/leads?reject=1", json={}, headers=headers).status_code == 422
     assert client.post("/mock-buyer/installer-a/leads", json={}).status_code == 401

@@ -66,15 +66,32 @@ GHL_V = [("Version", "2023-02-21")]
 SCORED = "$('Scored').item.json"
 TAG_URL = "=" + GHL + "/contacts/{{ " + SCORED + ".lead.contact_id }}/tags"
 RETRY = {"retryOnFail": True, "maxTries": 3, "waitBetweenTries": 5000, "onError": "continueErrorOutput"}
+# GoHighLevel and the router answer 429/5xx now and then; retry, and if they still fail the run errors
+# and STL-99 posts the alert, so a lead never fails silently after the 202.
+GHL_RETRY = {"retryOnFail": True, "maxTries": 3, "waitBetweenTries": 3000}
+BUYER_TIMEOUT = 30000
 LEDGER_NOTE = ("// The delivery ledger lives in this workflow's static data, so the replay and the morning check\n"
                "// (the other two triggers in this workflow) can read it. n8n saves static data only for\n"
-               "// production runs of the active workflow, not for manual test runs.\n")
+               "// production runs of the active workflow, not for manual test runs, and only when a run ends,\n"
+               "// so two runs at the same moment can both pass this check. A production build keeps the ledger\n"
+               "// in a database row claimed atomically; the buyer's Idempotency-Key is the backstop.\n")
+CAP_JS = ("const capVar = Number($vars.INSTALLER_A_DAILY_CAP);\n"
+          "const cap = Number.isFinite(capVar) && capVar > 0 ? capVar : 25;\n")
+# Read the HTTP status from an n8n error item: 2xx with a buyer id or 409 (already have it) is delivered,
+# another 4xx (except 408/429) is a rejection that a retry can't fix, anything else is worth retrying.
+CLASSIFY_JS = ("const err = $json.error;\n"
+               "const code = err ? Number(err.status || (String(err.message || '').match(/^(\\d{3})/) || [])[1] || 0) : 200;\n"
+               "let status = 'failed';\n"
+               "if ((!err && $json.buyer_lead_id) || code === 409) status = 'delivered';\n"
+               "else if (code >= 400 && code < 500 && code !== 408 && code !== 429) status = 'rejected';\n"
+               "const error = status === 'delivered' ? null\n"
+               "  : (err ? String(err.message || 'unknown error').slice(0, 200) : 'no buyer_lead_id in the answer');\n")
 
 # ---------------------------------------------------------------- STL-01
 f = Flow("STL-01 Qualify and Deliver")
 f.node("Webhook", "n8n-nodes-base.webhook", 2, 0, 300,
        {"httpMethod": "POST", "path": "acme-lead", "responseMode": "responseNode", "options": {}}, webhookId=nid())
-f.node("Key OK?", IF, 2.2, 220, 300, if_true("={{ $json.query.key === $vars.WEBHOOK_KEY }}"))
+f.node("Key OK?", IF, 2.2, 220, 300, if_true("={{ !!$vars.WEBHOOK_KEY && $json.query.key === $vars.WEBHOOK_KEY }}"))
 f.node("Respond 401", "n8n-nodes-base.respondToWebhook", 1.1, 440, 480,
        {"respondWith": "json", "responseBody": "={{ JSON.stringify({ error: 'bad key' }) }}", "options": {"responseCode": 401}})
 f.node("Respond 202", "n8n-nodes-base.respondToWebhook", 1.1, 440, 300,
@@ -107,111 +124,129 @@ f.node("Update contact", HTTP, 4.2, 1540, 300, http(
     body="={{ JSON.stringify({ customFields: [\n"
          "  { id: $vars.GHL_FIELD_AI_SCORE, field_value: $json.qualification.score },\n"
          "  { id: $vars.GHL_FIELD_AI_TIER, field_value: $json.qualification.tier },\n"
-         "  { id: $vars.GHL_FIELD_AI_SUMMARY, field_value: $json.qualification.summary }\n] }) }}"))
+         "  { id: $vars.GHL_FIELD_AI_SUMMARY, field_value: $json.qualification.summary }\n] }) }}"), **GHL_RETRY)
 f.node("Add tier tag", HTTP, 4.2, 1760, 300, http(
     "POST", TAG_URL, auth=True, headers=GHL_V,
-    body="={{ JSON.stringify({ tags: ['ai-' + " + SCORED + ".qualification.tier] }) }}"))
+    body="={{ JSON.stringify({ tags: ['ai-' + " + SCORED + ".qualification.tier] }) }}"), **GHL_RETRY)
 f.node("Add note", HTTP, 4.2, 1980, 300, http(
     "POST", "=" + GHL + "/contacts/{{ " + SCORED + ".lead.contact_id }}/notes", auth=True, headers=GHL_V,
     body="={{ JSON.stringify({ body: 'AI score ' + " + SCORED + ".qualification.score + '/100 (' + " + SCORED
          + ".qualification.tier + ', ' + ({ rules: 'rules', none: 'not scored' }[" + SCORED
          + ".qualification.source] || 'AI model') + '): ' + " + SCORED
-         + ".qualification.summary + ' Reasons: ' + " + SCORED + ".qualification.reasons.join('; ') }) }}"))
+         + ".qualification.summary + ' Reasons: ' + " + SCORED + ".qualification.reasons.join('; ') }) }}"), **GHL_RETRY)
 f.node("Sellable?", IF, 2.2, 2200, 300, if_true(
     "={{ " + SCORED + ".lead.consent === true && " + SCORED + ".lead.homeowner === true && ['hot', 'warm'].includes("
     + SCORED + ".qualification.tier) }}"))
-f.node("Check ledger", CODE, 2, 2420, 200, code(LEDGER_NOTE +
+# Map before the ledger, so a lead held at the cap keeps its payload for the morning release.
+f.node("Map", HTTP, 4.2, 2420, 200, http(
+    "POST", "={{ $vars.ROUTER_URL }}/map/installer-a", auth=True,
+    body="={{ JSON.stringify({ lead: " + SCORED + ".lead, qualification: " + SCORED + ".qualification }) }}"), **GHL_RETRY)
+f.node("Check ledger", CODE, 2, 2640, 200, code(LEDGER_NOTE +
     "const ledger = $getWorkflowStaticData('global');\n"
     "ledger.deliveries = ledger.deliveries || {};\n"
     "const { lead } = $('Scored').item.json;\n"
     "const buyer = 'installer-a';\n"
-    "const prior = ledger.deliveries[`${buyer}:${lead.lead_key}`];\n"
+    "const key = `${buyer}:${lead.lead_key}`;\n"
+    "const prior = ledger.deliveries[key];\n"
     "const thirtyDays = 30 * 24 * 3600 * 1000;\n"
-    "if (prior && prior.status === 'delivered' && Date.now() - prior.at < thirtyDays) {\n"
-    "  return { json: { action: 'duplicate' } };\n"
-    "}\n"
-    "const cap = Number($vars.INSTALLER_A_DAILY_CAP || 25);\n"
+    "// A lead already in flight (sending, waiting for the replay, held at the cap) or waiting for a person\n"
+    "// (rejected, dead) is handled; a delivered lead is a duplicate for 30 days.\n"
+    "if (prior && (['sending', 'failed', 'held', 'rejected', 'dead'].includes(prior.status)\n"
+    "    || (prior.status === 'delivered' && Date.now() - prior.at < thirtyDays))) {\n"
+    "  return { json: { action: 'duplicate', prior: prior.status } };\n"
+    "}\n" + CAP_JS +
     "const deliveredToday = Object.values(ledger.deliveries)\n"
     "  .filter(d => d.buyer === buyer && d.status === 'delivered' && d.day === lead.day).length;\n"
+    "// One idempotency key per submission, kept for every retry and replay of it.\n"
+    "const entry = { buyer, day: lead.day, at: Date.now(), attempts: 0, contact_id: lead.contact_id,\n"
+    "  name: lead.first_name, payload: $('Map').item.json, idem: `${lead.lead_key}-${$execution.id}` };\n"
     "if (deliveredToday >= cap) {\n"
-    "  ledger.deliveries[`${buyer}:${lead.lead_key}`] = { buyer, status: 'held', day: lead.day, at: Date.now(),\n"
-    "    attempts: 0, contact_id: lead.contact_id, name: lead.first_name };\n"
+    "  ledger.deliveries[key] = { ...entry, status: 'held' };\n"
     "  return { json: { action: 'cap', deliveredToday, cap } };\n"
     "}\n"
-    "return { json: { action: 'deliver', deliveredToday, cap } };\n", each=True))
-f.node("Deliver?", IF, 2.2, 2640, 200, if_true("={{ $json.action === 'deliver' }}"))
-f.node("Tag skipped", HTTP, 4.2, 2860, 400, http(
+    "ledger.deliveries[key] = { ...entry, status: 'sending' };\n"
+    "return { json: { action: 'deliver', deliveredToday, cap, idem: entry.idem } };\n", each=True))
+f.node("Deliver?", IF, 2.2, 2860, 200, if_true("={{ $json.action === 'deliver' }}"))
+f.node("Tag skipped", HTTP, 4.2, 3080, 400, http(
     "POST", TAG_URL, auth=True, headers=GHL_V,
-    body="={{ JSON.stringify({ tags: [$json.action === 'duplicate' ? 'duplicate-skipped' : 'cap-reached'] }) }}"))
-f.node("Map", HTTP, 4.2, 2860, 100, http(
-    "POST", "={{ $vars.ROUTER_URL }}/map/installer-a", auth=True,
-    body="={{ JSON.stringify({ lead: " + SCORED + ".lead, qualification: " + SCORED + ".qualification }) }}"))
+    body="={{ JSON.stringify({ tags: [$json.action === 'duplicate' ? 'duplicate-skipped' : 'cap-reached'] }) }}"), **GHL_RETRY)
 f.node("Deliver", HTTP, 4.2, 3080, 100, http(
-    "POST", "={{ $vars.ROUTER_URL }}/mock-buyer/installer-a/leads", auth=True, body="={{ JSON.stringify($json) }}",
-    headers=[("Idempotency-Key", "={{ " + SCORED + ".lead.lead_key }}"), ("X-Demo-Outage", "={{ $vars.BUYER_OUTAGE }}")]),
-    **RETRY)
-f.node("Record delivered", CODE, 2, 3300, 0, code(
+    "POST", "={{ $vars.INSTALLER_A_URL }}", auth=True, body="={{ JSON.stringify($('Map').item.json) }}",
+    headers=[("Idempotency-Key", "={{ $('Check ledger').item.json.idem }}")], timeout=BUYER_TIMEOUT), **RETRY)
+f.node("Record outcome", CODE, 2, 3300, 100, code(
+    "// Both Deliver outputs land here: classify the answer and write it to the ledger.\n" + CLASSIFY_JS +
     "const ledger = $getWorkflowStaticData('global');\n"
-    "ledger.deliveries = ledger.deliveries || {};\n"
     "const { lead } = $('Scored').item.json;\n"
-    "ledger.deliveries[`installer-a:${lead.lead_key}`] = { buyer: 'installer-a', status: 'delivered', day: lead.day,\n"
-    "  at: Date.now(), attempts: 1, contact_id: lead.contact_id, name: lead.first_name, buyer_lead_id: $json.buyer_lead_id };\n"
-    "return { json: { buyer_lead_id: $json.buyer_lead_id } };\n", each=True))
-f.node("Tag delivered", HTTP, 4.2, 3520, 0, http(
-    "POST", TAG_URL, auth=True, headers=GHL_V, body="={{ JSON.stringify({ tags: ['delivered-installer-a'] }) }}"))
-f.node("Record failed", CODE, 2, 3300, 200, code(
-    "const ledger = $getWorkflowStaticData('global');\n"
-    "ledger.deliveries = ledger.deliveries || {};\n"
-    "const { lead } = $('Scored').item.json;\n"
-    "const error = $json.error?.message || 'unknown error';\n"
-    "ledger.deliveries[`installer-a:${lead.lead_key}`] = { buyer: 'installer-a', status: 'failed', day: lead.day,\n"
-    "  at: Date.now(), attempts: 1, contact_id: lead.contact_id, name: lead.first_name,\n"
-    "  payload: $('Map').item.json, last_error: error };\n"
-    "return { json: { name: lead.first_name, error } };\n", each=True))
-f.node("Tag failed", HTTP, 4.2, 3520, 200, http(
-    "POST", TAG_URL, auth=True, headers=GHL_V, body="={{ JSON.stringify({ tags: ['delivery-failed'] }) }}"))
-f.node("Alert: delivery failed", HTTP, 4.2, 3740, 200, slack(
-    "'Delivery failed: ' + $('Record failed').item.json.name + ' to Installer A after 3 tries (' + $('Record failed').item.json.error"
+    "const d = ledger.deliveries[`installer-a:${lead.lead_key}`];\n"
+    "Object.assign(d, { status, attempts: d.attempts + 1, at: Date.now(), last_error: error,\n"
+    "  buyer_lead_id: $json.buyer_lead_id || d.buyer_lead_id });\n"
+    "return { json: { status, name: lead.first_name, contact_id: lead.contact_id, error } };\n", each=True))
+f.node("Delivered?", IF, 2.2, 3520, 100, if_true("={{ $json.status === 'delivered' }}"))
+f.node("Tag delivered", HTTP, 4.2, 3740, 0, http(
+    "POST", TAG_URL, auth=True, headers=GHL_V, body="={{ JSON.stringify({ tags: ['delivered-installer-a'] }) }}"),
+    **GHL_RETRY)
+f.node("Rejected?", IF, 2.2, 3740, 200, if_true("={{ $json.status === 'rejected' }}"))
+f.node("Tag rejected", HTTP, 4.2, 3960, 100, http(
+    "POST", TAG_URL, auth=True, headers=GHL_V, body="={{ JSON.stringify({ tags: ['delivery-rejected'] }) }}"),
+    **GHL_RETRY)
+f.node("Alert: delivery rejected", HTTP, 4.2, 4180, 100, slack(
+    "'Rejected by Installer A: ' + $('Record outcome').item.json.name + ' (' + $('Record outcome').item.json.error"
+    " + '). Not retried, because the same request would be rejected again. Tag delivery-rejected; needs a person. Execution ' + $execution.id"))
+f.node("Tag failed", HTTP, 4.2, 3960, 300, http(
+    "POST", TAG_URL, auth=True, headers=GHL_V, body="={{ JSON.stringify({ tags: ['delivery-failed'] }) }}"),
+    **GHL_RETRY)
+f.node("Alert: delivery failed", HTTP, 4.2, 4180, 300, slack(
+    "'Delivery failed: ' + $('Record outcome').item.json.name + ' to Installer A after 3 tries (' + $('Record outcome').item.json.error"
     " + '). The lead is safe in GoHighLevel with tag delivery-failed. Replay runs every 15 minutes. Execution ' + $execution.id"))
 
-# Replay of failed deliveries, every 15 minutes
+# Replay of failed deliveries, and morning release of leads held at the cap, every 15 minutes
 f.node("Every 15 minutes", "n8n-nodes-base.scheduleTrigger", 1.2, 0, 800,
        {"rule": {"interval": [{"field": "minutes", "minutesInterval": 15}]}})
-f.node("Pick failed deliveries", CODE, 2, 220, 800, code(
+f.node("Pick deliveries to retry", CODE, 2, 220, 800, code(
     "const ledger = $getWorkflowStaticData('global');\n"
-    "return Object.entries(ledger.deliveries || {})\n"
-    "  .filter(([, d]) => d.status === 'failed' && d.attempts < 5)\n"
+    "ledger.deliveries = ledger.deliveries || {};\n" + CAP_JS +
+    "const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });\n"
+    "const all = Object.entries(ledger.deliveries);\n"
+    "// Leads held at yesterday's cap go out first thing, oldest first, inside today's cap.\n"
+    "let room = cap - all.filter(([, d]) => d.status === 'delivered' && d.day === today).length;\n"
+    "for (const [, d] of all.filter(([, d]) => d.status === 'held' && d.day < today && d.payload)\n"
+    "    .sort((a, b) => a[1].at - b[1].at)) {\n"
+    "  if (room <= 0) break;\n"
+    "  Object.assign(d, { status: 'failed', day: today, released_from_cap: true });\n"
+    "  room -= 1;\n"
+    "}\n"
+    "return all.filter(([, d]) => d.status === 'failed' && d.attempts < 5 && d.payload)\n"
     "  .map(([key, d]) => ({ json: { key, ...d } }));\n"))
 f.node("Deliver again", HTTP, 4.2, 440, 800, http(
-    "POST", "={{ $vars.ROUTER_URL }}/mock-buyer/installer-a/leads", auth=True, body="={{ JSON.stringify($json.payload) }}",
-    headers=[("Idempotency-Key", "={{ $json.key.split(':')[1] }}"), ("X-Demo-Outage", "={{ $vars.BUYER_OUTAGE }}")]),
-    **RETRY)
-f.node("Record recovered", CODE, 2, 660, 700, code(
+    "POST", "={{ $vars.INSTALLER_A_URL }}", auth=True, body="={{ JSON.stringify($json.payload) }}",
+    headers=[("Idempotency-Key", "={{ $json.idem || $json.key.split(':')[1] }}")], timeout=BUYER_TIMEOUT), **RETRY)
+f.node("Record replay", CODE, 2, 660, 800, code(CLASSIFY_JS +
     "const ledger = $getWorkflowStaticData('global');\n"
-    "const d = ledger.deliveries[$('Pick failed deliveries').item.json.key];\n"
-    "Object.assign(d, { status: 'delivered', attempts: d.attempts + 1, recovered_at: Date.now(), buyer_lead_id: $json.buyer_lead_id });\n"
-    "return { json: { contact_id: d.contact_id, name: d.name, attempts: d.attempts } };\n", each=True))
-f.node("Remove failed tag", HTTP, 4.2, 880, 700, http(
-    "DELETE", "=" + GHL + "/contacts/{{ $json.contact_id }}/tags", auth=True, headers=GHL_V,
-    body="={{ JSON.stringify({ tags: ['delivery-failed'] }) }}"))
-f.node("Add delivered tag", HTTP, 4.2, 1100, 700, http(
-    "POST", "=" + GHL + "/contacts/{{ $('Record recovered').item.json.contact_id }}/tags", auth=True, headers=GHL_V,
-    body="={{ JSON.stringify({ tags: ['delivered-installer-a'] }) }}"))
-f.node("Alert: recovered", HTTP, 4.2, 1320, 700, slack(
-    "'Recovered: ' + $('Record recovered').item.json.name + ' delivered to Installer A on attempt ' + $('Record recovered').item.json.attempts + '.'"))
-f.node("Record retry failure", CODE, 2, 660, 900, code(
-    "const ledger = $getWorkflowStaticData('global');\n"
-    "const d = ledger.deliveries[$('Pick failed deliveries').item.json.key];\n"
+    "const d = ledger.deliveries[$('Pick deliveries to retry').item.json.key];\n"
     "d.attempts += 1;\n"
-    "d.last_error = $json.error?.message || 'unknown error';\n"
-    "if (d.attempts >= 5) d.status = 'dead';\n"
-    "return { json: { contact_id: d.contact_id, name: d.name, attempts: d.attempts, dead: d.status === 'dead' } };\n", each=True))
-f.node("Gave up?", IF, 2.2, 880, 900, if_true("={{ $json.dead }}"))
-f.node("Tag dead", HTTP, 4.2, 1100, 900, http(
+    "d.last_error = error;\n"
+    "if (status === 'delivered') Object.assign(d, { status, recovered_at: Date.now(),\n"
+    "  buyer_lead_id: $json.buyer_lead_id || d.buyer_lead_id });\n"
+    "else if (status === 'rejected') d.status = 'rejected';\n"
+    "else if (d.attempts >= 5) d.status = 'dead';\n"
+    "return { json: { status: d.status, contact_id: d.contact_id, name: d.name, attempts: d.attempts, error } };\n", each=True))
+f.node("Recovered?", IF, 2.2, 880, 800, if_true("={{ $json.status === 'delivered' }}"))
+f.node("Remove failed tag", HTTP, 4.2, 1100, 700, http(
+    "DELETE", "=" + GHL + "/contacts/{{ $json.contact_id }}/tags", auth=True, headers=GHL_V,
+    body="={{ JSON.stringify({ tags: ['delivery-failed', 'cap-reached'] }) }}"), **GHL_RETRY)
+f.node("Add delivered tag", HTTP, 4.2, 1320, 700, http(
+    "POST", "=" + GHL + "/contacts/{{ $('Record replay').item.json.contact_id }}/tags", auth=True, headers=GHL_V,
+    body="={{ JSON.stringify({ tags: ['delivered-installer-a'] }) }}"), **GHL_RETRY)
+f.node("Alert: recovered", HTTP, 4.2, 1540, 700, slack(
+    "'Recovered: ' + $('Record replay').item.json.name + ' delivered to Installer A on attempt ' + $('Record replay').item.json.attempts + '.'"))
+f.node("Gave up?", IF, 2.2, 1100, 900, if_true("={{ ['dead', 'rejected'].includes($json.status) }}"))
+f.node("Tag dead", HTTP, 4.2, 1320, 900, http(
     "POST", "=" + GHL + "/contacts/{{ $json.contact_id }}/tags", auth=True, headers=GHL_V,
-    body="={{ JSON.stringify({ tags: ['delivery-dead'] }) }}"))
-f.node("Alert: gave up", HTTP, 4.2, 1320, 900, slack(
-    "'Gave up after 5 attempts: ' + $('Record retry failure').item.json.name + ' to Installer A. Needs a person.'"))
+    body="={{ JSON.stringify({ tags: [$json.status === 'rejected' ? 'delivery-rejected' : 'delivery-dead'] }) }}"),
+    **GHL_RETRY)
+f.node("Alert: gave up", HTTP, 4.2, 1540, 900, slack(
+    "($('Record replay').item.json.status === 'rejected' ? 'Rejected by Installer A on replay: ' : 'Gave up after 5 attempts: ')"
+    " + $('Record replay').item.json.name + ' (' + $('Record replay').item.json.error + '). Needs a person.'"))
 
 # Morning health check
 f.node("Every day 8 AM", "n8n-nodes-base.scheduleTrigger", 1.2, 0, 1150, {"rule": {"interval": [{"triggerAtHour": 8}]}})
@@ -225,12 +260,11 @@ f.node("Summarize yesterday", CODE, 2, 220, 1150, code(
     "  if (Date.now() - d.at > 60 * 864e5) delete ledger.deliveries[key];\n"
     "}\n"
     "const rows = Object.values(ledger.deliveries).filter(d => d.day === yesterday);\n"
-    "const count = s => rows.filter(d => d.status === s).length;\n"
-    "const cap = Number($vars.INSTALLER_A_DAILY_CAP || 25);\n"
+    "const count = s => rows.filter(d => d.status === s).length;\n" + CAP_JS +
     "const text = rows.length === 0\n"
     "  ? `No leads were delivered yesterday (${yesterday}). Check the form, workflow 01 and the n8n webhook.`\n"
     "  : `Yesterday (${yesterday}): ${count('delivered')} delivered, ${count('failed')} failed, ${count('dead')} dead, `\n"
-    "    + `${count('held')} held at cap. Installer A cap ${count('delivered')}/${cap}.`;\n"
+    "    + `${count('rejected')} rejected, ${count('held')} held at cap. Installer A cap ${count('delivered')}/${cap}.`;\n"
     "return [{ json: { text } }];\n"))
 f.node("Post summary", HTTP, 4.2, 440, 1150, slack("$json.text"))
 
@@ -238,16 +272,17 @@ for a, b, o in [("Webhook", "Key OK?", 0), ("Key OK?", "Respond 202", 0), ("Key 
                 ("Respond 202", "Lead in", 0), ("Lead in", "Qualify", 0), ("Qualify", "Scored", 0),
                 ("Qualify", "Alert: scoring down", 1), ("Alert: scoring down", "Scored", 0),
                 ("Scored", "Update contact", 0), ("Update contact", "Add tier tag", 0), ("Add tier tag", "Add note", 0),
-                ("Add note", "Sellable?", 0), ("Sellable?", "Check ledger", 0), ("Check ledger", "Deliver?", 0),
-                ("Deliver?", "Map", 0), ("Deliver?", "Tag skipped", 1), ("Map", "Deliver", 0),
-                ("Deliver", "Record delivered", 0), ("Deliver", "Record failed", 1),
-                ("Record delivered", "Tag delivered", 0), ("Record failed", "Tag failed", 0),
-                ("Tag failed", "Alert: delivery failed", 0),
-                ("Every 15 minutes", "Pick failed deliveries", 0), ("Pick failed deliveries", "Deliver again", 0),
-                ("Deliver again", "Record recovered", 0), ("Deliver again", "Record retry failure", 1),
-                ("Record recovered", "Remove failed tag", 0), ("Remove failed tag", "Add delivered tag", 0),
-                ("Add delivered tag", "Alert: recovered", 0), ("Record retry failure", "Gave up?", 0),
-                ("Gave up?", "Tag dead", 0), ("Tag dead", "Alert: gave up", 0),
+                ("Add note", "Sellable?", 0), ("Sellable?", "Map", 0), ("Map", "Check ledger", 0),
+                ("Check ledger", "Deliver?", 0), ("Deliver?", "Deliver", 0), ("Deliver?", "Tag skipped", 1),
+                ("Deliver", "Record outcome", 0), ("Deliver", "Record outcome", 1),
+                ("Record outcome", "Delivered?", 0), ("Delivered?", "Tag delivered", 0), ("Delivered?", "Rejected?", 1),
+                ("Rejected?", "Tag rejected", 0), ("Tag rejected", "Alert: delivery rejected", 0),
+                ("Rejected?", "Tag failed", 1), ("Tag failed", "Alert: delivery failed", 0),
+                ("Every 15 minutes", "Pick deliveries to retry", 0), ("Pick deliveries to retry", "Deliver again", 0),
+                ("Deliver again", "Record replay", 0), ("Deliver again", "Record replay", 1),
+                ("Record replay", "Recovered?", 0), ("Recovered?", "Remove failed tag", 0),
+                ("Remove failed tag", "Add delivered tag", 0), ("Add delivered tag", "Alert: recovered", 0),
+                ("Recovered?", "Gave up?", 1), ("Gave up?", "Tag dead", 0), ("Tag dead", "Alert: gave up", 0),
                 ("Every day 8 AM", "Summarize yesterday", 0), ("Summarize yesterday", "Post summary", 0)]:
     f.link(a, b, o)
 f.write("STL-01-qualify-and-deliver.json", {"executionOrder": "v1", "timezone": "America/Chicago",

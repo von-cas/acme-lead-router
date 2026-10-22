@@ -9,7 +9,7 @@ stands in for the buyer's CRM, with a switch that simulates an outage.
 | `GET /health` | none | Liveness check |
 | `POST /qualify` | `X-Service-Token` | Cleans the lead, scores it with the AI model, falls back to rules if the model fails |
 | `POST /map/{buyer_id}` | `X-Service-Token` | Maps a lead to that buyer's format; 422 if a required field is missing |
-| `POST /mock-buyer/{buyer_id}/leads` | `Authorization: Bearer <buyer key>` | Fake installer CRM; 503 when `X-Demo-Outage: 1` |
+| `POST /mock-buyer/{buyer_id}/leads` | `Authorization: Bearer <buyer key>` | Fake installer CRM; `?outage=1` answers 503, `?reject=1` answers 422 |
 
 How the scoring call is built:
 

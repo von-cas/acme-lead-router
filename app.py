@@ -2,7 +2,6 @@ import hashlib
 import os
 import re
 from datetime import datetime
-from typing import Optional
 from zoneinfo import ZoneInfo
 
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -83,11 +82,15 @@ def mock_buyer(
     payload: dict,
     authorization: str = Header(""),
     idempotency_key: str = Header(""),
-    x_demo_outage: Optional[str] = Header("0"),
+    outage: str = "0",
+    reject: str = "0",
 ) -> dict:
+    # The demo switches ride in the URL (n8n's INSTALLER_A_URL variable), so a real buyer never sees them.
     buyer_key = os.environ.get("BUYER_KEY")
     if not buyer_key or authorization != f"Bearer {buyer_key}":
         raise HTTPException(status_code=401, detail="bad buyer key")
-    if x_demo_outage == "1":
+    if outage == "1":
         raise HTTPException(status_code=503, detail="installer CRM is down (demo outage)")
+    if reject == "1":
+        raise HTTPException(status_code=422, detail="installer rejected the lead (demo)")
     return {"buyer_lead_id": f"IA-{idempotency_key[:8]}", "status": "accepted"}
