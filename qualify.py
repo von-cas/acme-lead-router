@@ -47,7 +47,7 @@ class Qualification(BaseModel):
     tier: Literal["hot", "warm", "cold"]
     reasons: List[str]
     summary: str
-    source: Literal["claude", "deepseek", "rules"]
+    source: Literal["ai", "rules"]  # "ai" whichever model LLM_PROVIDER picked
 
 
 client = anthropic.Anthropic(timeout=8.0, max_retries=1)
@@ -83,7 +83,7 @@ def qualify_with_claude(lead: dict) -> Qualification:
         raise RuntimeError(f"Claude stopped with {response.stop_reason}")
     text = next(block.text for block in response.content if block.type == "text")
     verdict = Verdict.model_validate_json(text)
-    return Qualification(tier=tier_for(verdict.score), source="claude", **verdict.model_dump())
+    return Qualification(tier=tier_for(verdict.score), source="ai", **verdict.model_dump())
 
 
 def qualify_with_deepseek(lead: dict) -> Qualification:
@@ -104,7 +104,7 @@ def qualify_with_deepseek(lead: dict) -> Qualification:
     if choice.get("finish_reason") != "stop":
         raise RuntimeError(f"DeepSeek stopped with {choice.get('finish_reason')}")
     verdict = Verdict.model_validate_json(choice["message"]["content"])
-    return Qualification(tier=tier_for(verdict.score), source="deepseek", **verdict.model_dump())
+    return Qualification(tier=tier_for(verdict.score), source="ai", **verdict.model_dump())
 
 
 def qualify_with_rules(lead: dict) -> Qualification:

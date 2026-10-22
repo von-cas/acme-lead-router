@@ -52,7 +52,7 @@ def test_deepseek_is_the_default_scorer(monkeypatch):
     monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
     monkeypatch.setattr(qualify.urllib.request, "urlopen", deepseek_reply('{"score": 88, "reasons": ["Owns the home"], "summary": "Strong fit."}'))
     body = client.post("/qualify", json=LEAD, headers=SVC).json()
-    assert body["qualification"] == {"score": 88, "tier": "hot", "reasons": ["Owns the home"], "summary": "Strong fit.", "source": "deepseek"}
+    assert body["qualification"] == {"score": 88, "tier": "hot", "reasons": ["Owns the home"], "summary": "Strong fit.", "source": "ai"}
 
 
 def test_deepseek_down_or_out_of_range_falls_back_to_rules(monkeypatch):
