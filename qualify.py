@@ -1,11 +1,16 @@
 import json
 import os
+import urllib.error
+import urllib.request
 from typing import List, Literal
 
 import anthropic
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 
+# LLM_PROVIDER picks the scoring model: "deepseek" (default) or "claude". Either way, any failure falls back to rules.
 MODEL = "claude-opus-5-5"
+DEEPSEEK_MODEL = "deepseek-flash"
+DEEPSEEK_URL = "https://api.deepseek.com/chat/completions"
 
 SYSTEM_PROMPT = """You qualify residential solar leads for Acme Solar, which serves Austin and Central Texas.
 Score the lead from 0 to 100 for how likely a 20-minute consultation leads to an installation.
@@ -15,7 +20,10 @@ ZIP code inside the service area (Austin ZIP codes start with 787).
 Give two to four short reasons. Write the summary as one sentence a sales rep can read in five seconds.
 Use only facts in the lead. Never invent details."""
 
-# Claude returns the score and the words; code applies the tier thresholds (business rules, pinned by tests).
+# DeepSeek's JSON mode takes no schema, so the prompt names the shape; Verdict validates it either way.
+DEEPSEEK_JSON = '\nAnswer with JSON only: {"score": <integer 0 to 100>, "reasons": [<strings>], "summary": <string>}'
+
+# The model returns the score and the words; code applies the tier thresholds (business rules, pinned by tests).
 CLAUDE_SCHEMA = {
     "type": "object",
     "properties": {
@@ -28,7 +36,7 @@ CLAUDE_SCHEMA = {
 }
 
 
-class ClaudeVerdict(BaseModel):
+class Verdict(BaseModel):
     score: int = Field(ge=0, le=100)
     reasons: List[str]
     summary: str
@@ -39,7 +47,7 @@ class Qualification(BaseModel):
     tier: Literal["hot", "warm", "cold"]
     reasons: List[str]
     summary: str
-    source: Literal["claude", "rules"]
+    source: Literal["claude", "deepseek", "rules"]
 
 
 client = anthropic.Anthropic(timeout=8.0, max_retries=1)
@@ -53,9 +61,12 @@ def tier_for(score: int) -> str:
     return "cold"
 
 
+def scoring_facts(lead: dict) -> dict:
+    # Only the facts the score needs go to the model: no name, email or phone.
+    return {key: lead.get(key) for key in ("homeowner", "monthly_bill", "roof_shade", "timeline", "postal_code")}
+
+
 def qualify_with_claude(lead: dict) -> Qualification:
-    # Only the facts the score needs go to Claude: no name, email or phone.
-    facts = {key: lead.get(key) for key in ("homeowner", "monthly_bill", "roof_shade", "timeline", "postal_code")}
     if not os.environ.get("ANTHROPIC_API_KEY"):
         # Without a key the SDK raises a TypeError the fallback below wouldn't catch.
         raise RuntimeError("ANTHROPIC_API_KEY is not set")
@@ -66,13 +77,34 @@ def qualify_with_claude(lead: dict) -> Qualification:
         fallbacks="default",
         output_config={"effort": "low", "format": {"type": "json_schema", "schema": CLAUDE_SCHEMA}},
         system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": json.dumps(facts)}],
+        messages=[{"role": "user", "content": json.dumps(scoring_facts(lead))}],
     )
     if response.stop_reason != "end_turn":
         raise RuntimeError(f"Claude stopped with {response.stop_reason}")
     text = next(block.text for block in response.content if block.type == "text")
-    verdict = ClaudeVerdict.model_validate_json(text)
+    verdict = Verdict.model_validate_json(text)
     return Qualification(tier=tier_for(verdict.score), source="claude", **verdict.model_dump())
+
+
+def qualify_with_deepseek(lead: dict) -> Qualification:
+    key = os.environ.get("DEEPSEEK_API_KEY")
+    if not key:
+        raise RuntimeError("DEEPSEEK_API_KEY is not set")
+    body = {
+        "model": DEEPSEEK_MODEL,
+        "max_tokens": 2000,  # deepseek-flash reasons first: about 400 thinking tokens before a 100-token answer
+        "response_format": {"type": "json_object"},
+        "messages": [{"role": "system", "content": SYSTEM_PROMPT + DEEPSEEK_JSON},
+                     {"role": "user", "content": json.dumps(scoring_facts(lead))}],
+    }
+    request = urllib.request.Request(DEEPSEEK_URL, data=json.dumps(body).encode(), method="POST",
+                                     headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
+    with urllib.request.urlopen(request, timeout=15) as response:  # n8n's Qualify node waits 20 s
+        choice = json.loads(response.read())["choices"][0]
+    if choice.get("finish_reason") != "stop":
+        raise RuntimeError(f"DeepSeek stopped with {choice.get('finish_reason')}")
+    verdict = Verdict.model_validate_json(choice["message"]["content"])
+    return Qualification(tier=tier_for(verdict.score), source="deepseek", **verdict.model_dump())
 
 
 def qualify_with_rules(lead: dict) -> Qualification:
@@ -96,9 +128,11 @@ def qualify_with_rules(lead: dict) -> Qualification:
 
 
 def qualify(lead: dict) -> Qualification:
+    scorer = qualify_with_claude if os.environ.get("LLM_PROVIDER") == "claude" else qualify_with_deepseek
     try:
-        return qualify_with_claude(lead)
-    except (anthropic.APIError, RuntimeError, ValidationError, StopIteration) as exc:
+        return scorer(lead)
+    except (anthropic.APIError, urllib.error.URLError, TimeoutError, KeyError, IndexError,
+            RuntimeError, ValueError, StopIteration) as exc:  # ValueError covers ValidationError and bad JSON
         result = qualify_with_rules(lead)
-        result.reasons.append(f"Claude unavailable ({type(exc).__name__}), rules used")
+        result.reasons.append(f"AI model unavailable ({type(exc).__name__}), rules used")
         return result

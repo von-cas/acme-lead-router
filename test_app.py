@@ -1,5 +1,9 @@
+import json
 import os
+import urllib.error
 
+os.environ.pop("DEEPSEEK_API_KEY", None)
+os.environ.pop("LLM_PROVIDER", None)
 os.environ.setdefault("ANTHROPIC_API_KEY", "test-key")
 os.environ["SERVICE_TOKEN"] = "svc"
 os.environ["BUYER_KEY"] = "buyer"
@@ -30,7 +34,43 @@ def test_tier_thresholds():
     assert [qualify.tier_for(s) for s in (75, 74, 45, 44)] == ["hot", "warm", "warm", "cold"]
 
 
+def deepseek_reply(content, finish_reason="stop"):
+    class Reply:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def read(self):
+            return json.dumps({"choices": [{"finish_reason": finish_reason, "message": {"content": content}}]}).encode()
+
+    return lambda request, timeout: Reply()
+
+
+def test_deepseek_is_the_default_scorer(monkeypatch):
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
+    monkeypatch.setattr(qualify.urllib.request, "urlopen", deepseek_reply('{"score": 88, "reasons": ["Owns the home"], "summary": "Strong fit."}'))
+    body = client.post("/qualify", json=LEAD, headers=SVC).json()
+    assert body["qualification"] == {"score": 88, "tier": "hot", "reasons": ["Owns the home"], "summary": "Strong fit.", "source": "deepseek"}
+
+
+def test_deepseek_down_or_out_of_range_falls_back_to_rules(monkeypatch):
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
+    monkeypatch.setattr(qualify.urllib.request, "urlopen", deepseek_reply('{"score": 140, "reasons": ["x"], "summary": "y"}'))
+    assert client.post("/qualify", json=LEAD, headers=SVC).json()["qualification"]["source"] == "rules"
+
+    def down(request, timeout):
+        raise urllib.error.URLError("connection refused")
+
+    monkeypatch.setattr(qualify.urllib.request, "urlopen", down)
+    assert client.post("/qualify", json=LEAD, headers=SVC).json()["qualification"]["source"] == "rules"
+    monkeypatch.delenv("DEEPSEEK_API_KEY")
+    assert client.post("/qualify", json=LEAD, headers=SVC).json()["qualification"]["source"] == "rules"
+
+
 def test_qualify_falls_back_to_rules_when_claude_is_down(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "claude")
     monkeypatch.setattr(qualify, "qualify_with_claude", fail_claude)
     body = client.post("/qualify", json=LEAD, headers=SVC).json()
     assert body["lead"]["email"] == "maria@example.com"
@@ -40,6 +80,7 @@ def test_qualify_falls_back_to_rules_when_claude_is_down(monkeypatch):
 
 
 def test_qualify_falls_back_to_rules_without_an_anthropic_key(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "claude")
     monkeypatch.delenv("ANTHROPIC_API_KEY")
     body = client.post("/qualify", json=LEAD, headers=SVC).json()
     assert body["qualification"]["source"] == "rules"
@@ -55,6 +96,7 @@ def test_claude_score_out_of_range_is_rejected(monkeypatch):
         stop_reason = "end_turn"
         content = [Block()]
 
+    monkeypatch.setenv("LLM_PROVIDER", "claude")
     monkeypatch.setattr(qualify.client.beta.messages, "create", lambda **kwargs: Response())
     result = qualify.qualify({**LEAD, "homeowner": True, "monthly_bill": 220.0})
     assert result.source == "rules"
